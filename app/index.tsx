@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Switch, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { ThemeProvider, useTheme } from './ThemeContext';
+import { Sun, Moon } from 'lucide-react-native';
+import CategoryModal from './CategoryModal';
 
-export default function Index() {
+function Index() {
+  const { theme, toggleTheme } = useTheme();
   const [type, setType] = useState<'ingreso' | 'egreso'>('egreso');
-  const [typeCard, setTypeCard] = useState<'Debito' | 'Credito'>('Debito');
+  const [typeCard, setTypeCard] = useState<'Debito' | 'Credito' | 'Efectivo'>('Credito');
   const [categoryAdd, setCategoryAdd] = useState(false);
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
-  const [categories, setCategories] = useState(['Servicio', 'Alimentos', 'Inversión']);
+  const [categories, setCategories] = useState(['Servicio', 'Alimentos', 'Ropa']);
   const [newCategory, setNewCategory] = useState('');
   const [selectedCard, setSelectedCard] = useState('');
   const [installments, setInstallments] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   const onDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -29,6 +35,23 @@ export default function Index() {
       setNewCategory('');
     }
   };
+
+  const openCategoryModal = (cat: string) => {
+    setSelectedCategory(cat);
+    setModalVisible(true);
+  };
+
+  const editCategory = (newName: string) => {
+    setCategories(categories.map(cat => cat === selectedCategory ? newName : cat));
+    setCategory(newName);
+  };
+
+  const deleteCategory = () => {
+    setCategories(categories.filter(cat => cat !== selectedCategory));
+    setCategory('');
+  };
+
+  const styles = getStyles(theme);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -68,6 +91,7 @@ export default function Index() {
       <TextInput
         style={styles.input}
         placeholder="Valor"
+        placeholderTextColor={theme === 'dark' ? '#888' : '#999'}
         keyboardType="numeric"
         value={amount}
         onChangeText={setAmount}
@@ -76,6 +100,7 @@ export default function Index() {
       <TextInput
         style={styles.input}
         placeholder="Descripción"
+        placeholderTextColor={theme === 'dark' ? '#888' : '#999'}
         value={description}
         onChangeText={setDescription}
       />
@@ -83,20 +108,21 @@ export default function Index() {
       <View style={styles.pickerContainer}>
         <Text style={styles.label}>Categoría:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <TouchableOpacity
-          style={[styles.categoryButton, categoryAdd  && styles.selectedCategoryButton]}
-          onPress={() => setCategoryAdd(prevState => !prevState)}
-        >
-          <Text style={[styles.categoryButtonText, categoryAdd && styles.selectedCategoryButtonText,  { fontWeight: 'bold' }]}>
-                +
-              </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.categoryButton, categoryAdd && styles.selectedCategoryButton]}
+            onPress={() => setCategoryAdd(prevState => !prevState)}
+          >
+            <Text style={[styles.categoryButtonText, categoryAdd && styles.selectedCategoryButtonText, { fontWeight: 'bold' }]}>
+              +
+            </Text>
+          </TouchableOpacity>
 
           {categories.map((cat, index) => (
             <TouchableOpacity
               key={index}
               style={[styles.categoryButton, category === cat && styles.selectedCategoryButton]}
               onPress={() => setCategory(cat)}
+              onLongPress={() => openCategoryModal(cat)}
             >
               <Text style={[styles.categoryButtonText, category === cat && styles.selectedCategoryButtonText]}>
                 {cat}
@@ -105,34 +131,29 @@ export default function Index() {
           ))}
         </ScrollView>
       </View>
-      
 
       {categoryAdd && (
-        <>
-          
-                <View style={styles.addCategoryContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Nueva categoría"
-          value={newCategory}
-          onChangeText={setNewCategory}
-        />
-        <TouchableOpacity style={styles.addButton} onPress={addCategory}>
-          <Text style={styles.addButtonText}>Agregar</Text>
-        </TouchableOpacity>
-      </View>
-
-        </>
+        <View style={styles.addCategoryContainer}>
+          <TextInput
+            style={styles.newCategoryInput}
+            placeholder="Nueva categoría"
+            placeholderTextColor={theme === 'dark' ? '#888' : '#999'}
+            value={newCategory}
+            onChangeText={setNewCategory}
+          />
+          <TouchableOpacity style={styles.addButton} onPress={addCategory}>
+            <Text style={styles.addButtonText}>Agregar</Text>
+          </TouchableOpacity>
+        </View>
       )}
-
 
       <View style={styles.switchContainer}>
         <TouchableOpacity
-          style={[styles.button, typeCard === 'Debito' && styles.selectedButton]}
-          onPress={() => setTypeCard('Debito')}
+          style={[styles.button, typeCard === 'Efectivo' && styles.selectedButton]}
+          onPress={() => setTypeCard('Efectivo')}
         >
-          <Text style={[styles.buttonText, typeCard === 'Debito' && styles.selectedButtonText]}>
-          Debito
+          <Text style={[styles.buttonText, typeCard === 'Efectivo' && styles.selectedButtonText]}>
+            Efectivo
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -140,17 +161,25 @@ export default function Index() {
           onPress={() => setTypeCard('Credito')}
         >
           <Text style={[styles.buttonText, typeCard === 'Credito' && styles.selectedButtonText]}>
-          Credito
+            Credito
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, typeCard === 'Debito' && styles.selectedButton]}
+          onPress={() => setTypeCard('Debito')}
+        >
+          <Text style={[styles.buttonText, typeCard === 'Debito' && styles.selectedButtonText]}>
+            Debito
           </Text>
         </TouchableOpacity>
       </View>
 
-      {typeCard === 'Credito' && (
+      {(typeCard === 'Credito' || typeCard === 'Debito') && (
         <>
           <View style={styles.pickerContainer}>
             <Text style={styles.label}>Tarjeta:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {['1234', '0987'].map((card, index) => (
+              {(typeCard === 'Credito' ? ['1234', '0987'] : ['2314', '3333']).map((card, index) => (
                 <TouchableOpacity
                   key={index}
                   style={[styles.categoryButton, selectedCard === card && styles.selectedCategoryButton]}
@@ -167,6 +196,7 @@ export default function Index() {
           <TextInput
             style={styles.input}
             placeholder="Cantidad de cuotas"
+            placeholderTextColor={theme === 'dark' ? '#888' : '#999'}
             keyboardType="numeric"
             value={installments}
             onChangeText={setInstallments}
@@ -175,27 +205,45 @@ export default function Index() {
       )}
 
       <View style={styles.addCategoryContainer}>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>Registrar</Text>
+        <TouchableOpacity style={styles.registerButton}>
+          <Text style={styles.registerButtonText}>Registrar</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
 
-    
+      <CategoryModal
+        isVisible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        category={selectedCategory}
+        onEdit={editCategory}
+        onDelete={deleteCategory}
+      />
+
+      <TouchableOpacity
+        style={styles.themeToggle}
+        onPress={toggleTheme}
+        accessibilityLabel={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
+      >
+        {theme === 'light' ? (
+          <Moon color="#000" size={24} />
+        ) : (
+          <Sun color="#FFF" size={24} />
+        )}
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: theme === 'light' ? '#F5F5F5' : '#1A1A1A',
   },
   switchContainer: {
     flexDirection: 'row',
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: theme === 'light' ? '#007AFF' : '#4DA6FF',
     borderRadius: 5,
     overflow: 'hidden',
   },
@@ -203,29 +251,30 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
   },
   selectedButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: theme === 'light' ? '#007AFF' : '#4DA6FF',
   },
   buttonText: {
-    color: '#007AFF',
+    color: theme === 'light' ? '#007AFF' : '#4DA6FF',
     fontWeight: 'bold',
   },
   selectedButtonText: {
     color: '#FFFFFF',
   },
   datePickerButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
     padding: 15,
     borderRadius: 5,
     marginBottom: 20,
   },
   datePickerButtonText: {
-    color: '#007AFF',
+    color: theme === 'light' ? '#000000' : '#FFFFFF',
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
+    color: theme === 'light' ? '#000000' : '#FFFFFF',
     padding: 15,
     borderRadius: 5,
     marginBottom: 20,
@@ -236,19 +285,20 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 10,
     fontWeight: 'bold',
+    color: theme === 'light' ? '#000000' : '#FFFFFF',
   },
   categoryButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 20,
     marginRight: 10,
   },
   selectedCategoryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: theme === 'light' ? '#007AFF' : '#4DA6FF',
   },
   categoryButtonText: {
-    color: '#007AFF',
+    color: theme === 'light' ? '#007AFF' : '#4DA6FF',
   },
   selectedCategoryButtonText: {
     color: '#FFFFFF',
@@ -256,21 +306,50 @@ const styles = StyleSheet.create({
   addCategoryContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 20,
   },
-  addButton: {
-    backgroundColor: '#007AFF',
+  newCategoryInput: {
+    flex: 1,
+    backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
+    color: theme === 'light' ? '#000000' : '#FFFFFF',
     padding: 15,
     borderRadius: 5,
-    marginLeft: 10,
+    marginRight: 10,
+  },
+  addButton: {
+    backgroundColor: '#4CAF50',
+    padding: 15,
+    borderRadius: 5,
   },
   addButtonText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
-  switchRow: {
-    flexDirection: 'row',
+  registerButton: {
+    backgroundColor: '#4CAF50',
+    padding: 15,
+    borderRadius: 5,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
+    width: '100%',
+  },
+  registerButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  themeToggle: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: theme === 'light' ? '#E0E0E0' : '#3A3A3A',
   },
 });
+
+export default function ThemedIndex() {
+  return (
+    <ThemeProvider>
+      <Index />
+    </ThemeProvider>
+  );
+}
