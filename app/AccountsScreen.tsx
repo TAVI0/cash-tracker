@@ -24,7 +24,7 @@ export default function AccountsScreen({ transactions }: AccountsScreenProps) {
           <Text style={styles.transactionInstallments}>Cuotas: {item.installments}</Text>
         )}
         {item.cardName && (
-          <Text style={styles.transactionCard}>Tarjeta: **** {item.cardName}</Text>
+          <Text style={styles.transactionCard}>Tarjeta: {item.cardName}</Text>
         )}
       </View>
       <Text style={[
@@ -38,7 +38,8 @@ export default function AccountsScreen({ transactions }: AccountsScreenProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cuentas</Text>
+      <Text style={styles.title}>Registros</Text>
+
       <FlatList
         data={transactions}
         renderItem={renderItem}

@@ -259,6 +259,16 @@ function Index() {
         onDelete={deleteCategory}
       />
 
+
+    </ScrollView>
+  );
+
+  return (
+    <View style={styles.mainContainer}>
+      {currentScreen === 'main' ? renderMainScreen() : (
+        <AccountsScreen transactions={transactions} />
+      )}
+      
       <TouchableOpacity
         style={styles.themeToggle}
         onPress={toggleTheme}
@@ -270,14 +280,7 @@ function Index() {
           <Sun color="#FFF" size={24} />
         )}
       </TouchableOpacity>
-    </ScrollView>
-  );
-
-  return (
-    <View style={styles.mainContainer}>
-      {currentScreen === 'main' ? renderMainScreen() : (
-        <AccountsScreen transactions={transactions} />
-      )}
+      
       <View style={styles.navBar}>
         <TouchableOpacity
           style={styles.navButton}
@@ -290,11 +293,12 @@ function Index() {
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => setCurrentScreen('accounts')}
-          accessibilityLabel="Ver cuentas"
+          accessibilityLabel="Ver Registros"
         >
           <Scale color={theme === 'light' ? '#000' : '#FFF'} size={24} />
-          <Text style={styles.navButtonText}>Cuentas</Text>
+          <Text style={styles.navButtonText}>Registros</Text>
         </TouchableOpacity>
+        
       </View>
     </View>
   );
@@ -409,7 +413,7 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   },
   themeToggle: {
     position: 'absolute',
-    top: 20,
+    bottom: 70,
     right: 20,
     padding: 10,
     borderRadius: 20,
