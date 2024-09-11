@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { ThemeProvider, useTheme } from './ThemeContext';
-import { Sun, Moon } from 'lucide-react-native';
+import { Sun, Moon, Scale, DollarSign } from 'lucide-react-native';
 import CategoryModal from './CategoryModal';
+import AccountsScreen from './AccountsScreen';
+import { Transaction } from './types';
+
+// Definición actualizada del tipo Transaction
 
 function Index() {
   const { theme, toggleTheme } = useTheme();
@@ -21,6 +25,9 @@ function Index() {
   const [installments, setInstallments] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [currentScreen, setCurrentScreen] = useState<'main' | 'accounts'>('main');
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [name, setName] = useState('');
 
   const onDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -51,9 +58,33 @@ function Index() {
     setCategory('');
   };
 
+  const handleRegister = () => {
+    if (amount && category && name) {
+      const newTransaction: Transaction = {
+        id: Date.now().toString(),
+        type: type,
+        amount: parseFloat(amount),
+        description,
+        date: date.toLocaleDateString(),
+        category,
+        name,
+        installments: typeCard === 'Credito' ? installments : undefined,
+        cardName: typeCard !== 'Efectivo' ? selectedCard : undefined,
+      };
+      setTransactions([newTransaction, ...transactions]);
+      // Limpiar los campos después de registrar
+      setAmount('');
+      setDescription('');
+      setCategory('');
+      setName('');
+      setInstallments('');
+      setSelectedCard('');
+    }
+  };
+
   const styles = getStyles(theme);
 
-  return (
+  const renderMainScreen = () => (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.switchContainer}>
         <TouchableOpacity
@@ -87,6 +118,14 @@ function Index() {
           onChange={onDateChange}
         />
       )}
+
+      <TextInput
+        style={styles.input}
+        placeholder="Nombre"
+        placeholderTextColor={theme === 'dark' ? '#888' : '#999'}
+        value={name}
+        onChangeText={setName}
+      />
 
       <TextInput
         style={styles.input}
@@ -179,33 +218,35 @@ function Index() {
           <View style={styles.pickerContainer}>
             <Text style={styles.label}>Tarjeta:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {(typeCard === 'Credito' ? ['1234', '0987'] : ['2314', '3333']).map((card, index) => (
+              {(typeCard === 'Credito' ? ['**** 1234', '**** 0987'] : ['**** 2314', '**** 3333']).map((card, index) => (
                 <TouchableOpacity
                   key={index}
                   style={[styles.categoryButton, selectedCard === card && styles.selectedCategoryButton]}
                   onPress={() => setSelectedCard(card)}
                 >
                   <Text style={[styles.categoryButtonText, selectedCard === card && styles.selectedCategoryButtonText]}>
-                    **** {card}
+                    {card}
                   </Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Cantidad de cuotas"
-            placeholderTextColor={theme === 'dark' ? '#888' : '#999'}
-            keyboardType="numeric"
-            value={installments}
-            onChangeText={setInstallments}
-          />
+          {typeCard === 'Credito' && (
+            <TextInput
+              style={styles.input}
+              placeholder="Cantidad de cuotas"
+              placeholderTextColor={theme === 'dark' ? '#888' : '#999'}
+              keyboardType="numeric"
+              value={installments}
+              onChangeText={setInstallments}
+            />
+          )}
         </>
       )}
 
       <View style={styles.addCategoryContainer}>
-        <TouchableOpacity style={styles.registerButton}>
+        <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
           <Text style={styles.registerButtonText}>Registrar</Text>
         </TouchableOpacity>
       </View>
@@ -231,13 +272,43 @@ function Index() {
       </TouchableOpacity>
     </ScrollView>
   );
+
+  return (
+    <View style={styles.mainContainer}>
+      {currentScreen === 'main' ? renderMainScreen() : (
+        <AccountsScreen transactions={transactions} />
+      )}
+      <View style={styles.navBar}>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => setCurrentScreen('main')}
+          accessibilityLabel="Ver ingresos"
+        >
+          <DollarSign color={theme === 'light' ? '#000' : '#FFF'} size={24} />
+          <Text style={styles.navButtonText}>Ingresos</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => setCurrentScreen('accounts')}
+          accessibilityLabel="Ver cuentas"
+        >
+          <Scale color={theme === 'light' ? '#000' : '#FFF'} size={24} />
+          <Text style={styles.navButtonText}>Cuentas</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
 
 const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    backgroundColor: theme === 'light' ? '#F5F5F5' : '#1A1A1A',
+  },
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: theme === 'light' ? '#F5F5F5' : '#1A1A1A',
+    paddingBottom: 80,
   },
   switchContainer: {
     flexDirection: 'row',
@@ -338,11 +409,30 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   },
   themeToggle: {
     position: 'absolute',
-    bottom: 20,
-    left: 20,
+    top: 20,
+    right: 20,
     padding: 10,
     borderRadius: 20,
     backgroundColor: theme === 'light' ? '#E0E0E0' : '#3A3A3A',
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
+    paddingVertical: 10,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  navButton: {
+    alignItems: 'center',
+  },
+  navButtonText: {
+    color: theme === 'light' ? '#000' : '#FFF',
+    marginTop: 5,
+    fontSize: 12,
   },
 });
 

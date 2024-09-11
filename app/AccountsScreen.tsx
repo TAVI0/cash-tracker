@@ -1,0 +1,122 @@
+import React from 'react';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { useTheme } from './ThemeContext';
+import { Transaction } from './types';
+
+interface AccountsScreenProps {
+  transactions: Transaction[];
+}
+
+export default function AccountsScreen({ transactions }: AccountsScreenProps) {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
+
+  const renderItem = ({ item }: { item: Transaction }) => (
+    <View style={styles.transactionItem}>
+      <View style={styles.transactionHeader}>
+        <Text style={styles.transactionName}>{item.name}</Text>
+        <Text style={styles.transactionCategory}>{item.category}</Text>
+      </View>
+      <Text style={styles.transactionDescription}>{item.description}</Text>
+      <View style={styles.transactionFooter}>
+        <Text style={styles.transactionDate}>{item.date}</Text>
+        {item.installments && (
+          <Text style={styles.transactionInstallments}>Cuotas: {item.installments}</Text>
+        )}
+        {item.cardName && (
+          <Text style={styles.transactionCard}>Tarjeta: **** {item.cardName}</Text>
+        )}
+      </View>
+      <Text style={[
+        styles.transactionAmount,
+        item.type === 'ingreso' ? styles.incomeAmount : styles.expenseAmount
+      ]}>
+        {item.type === 'ingreso' ? '+' : '-'}${item.amount.toFixed(2)}
+      </Text>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Cuentas</Text>
+      <FlatList
+        data={transactions}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        style={styles.list}
+      />
+    </View>
+  );
+}
+
+const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme === 'light' ? '#F5F5F5' : '#1A1A1A',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: theme === 'light' ? '#000' : '#FFF',
+    marginTop: 40,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  list: {
+    flex: 1,
+  },
+  transactionItem: {
+    backgroundColor: theme === 'light' ? '#FFF' : '#2A2A2A',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+  },
+  transactionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  transactionName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: theme === 'light' ? '#000' : '#FFF',
+  },
+  transactionCategory: {
+    fontSize: 14,
+    color: theme === 'light' ? '#666' : '#AAA',
+  },
+  transactionDescription: {
+    fontSize: 14,
+    color: theme === 'light' ? '#333' : '#DDD',
+    marginBottom: 5,
+  },
+  transactionFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  transactionDate: {
+    fontSize: 12,
+    color: theme === 'light' ? '#666' : '#AAA',
+  },
+  transactionInstallments: {
+    fontSize: 12,
+    color: theme === 'light' ? '#666' : '#AAA',
+  },
+  transactionCard: {
+    fontSize: 12,
+    color: theme === 'light' ? '#666' : '#AAA',
+  },
+  transactionAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
+  incomeAmount: {
+    color: '#4CAF50',
+  },
+  expenseAmount: {
+    color: '#F44336',
+  },
+});
