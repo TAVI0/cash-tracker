@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { X, Trash } from 'lucide-react-native';
 import ConfirmationModal from './ConfirmationModal';
-import { useTheme } from './ThemeContext';
+import { useTheme } from '../ThemeContext';
 
 interface CategoryModalProps {
   isVisible: boolean;

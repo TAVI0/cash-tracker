@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useTheme } from './ThemeContext';
 import { Transaction } from './types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface AccountsScreenProps {
   transactions: Transaction[];
@@ -17,7 +18,9 @@ export default function AccountsScreen({ transactions }: AccountsScreenProps) {
         <Text style={styles.transactionName}>{item.name}</Text>
         <Text style={styles.transactionCategory}>{item.category}</Text>
       </View>
-      <Text style={styles.transactionDescription}>{item.description}</Text>
+      {item.category.map((cat, index)=>(
+        <Text  key={index} style={styles.transactionDescription}>{cat}</Text>
+      ))}
       <View style={styles.transactionFooter}>
         <Text style={styles.transactionDate}>{item.date}</Text>
         {item.installments && (
@@ -37,7 +40,7 @@ export default function AccountsScreen({ transactions }: AccountsScreenProps) {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView>
       <Text style={styles.title}>Registros</Text>
 
       <FlatList
@@ -46,16 +49,11 @@ export default function AccountsScreen({ transactions }: AccountsScreenProps) {
         keyExtractor={(item) => item.id}
         style={styles.list}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme === 'light' ? '#F5F5F5' : '#1A1A1A',
-    padding: 20,
-  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',

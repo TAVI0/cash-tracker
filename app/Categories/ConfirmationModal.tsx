@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
-import { useTheme } from './ThemeContext';
+import { useTheme } from '../ThemeContext';
 
 interface ConfirmationModalProps {
   isVisible: boolean;
