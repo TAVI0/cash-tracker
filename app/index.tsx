@@ -1,26 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { ThemeProvider, useTheme } from "./ThemeContext";
 import { Sun, Moon, Scale, DollarSign } from "lucide-react-native";
 import AccountsScreen from "./AccountsScreen";
-import { Transaction } from "./types";
 import MainScreen from "./MainScreen";
 
 function Index() {
   const { theme, toggleTheme } = useTheme();
-  const [currentScreen, setCurrentScreen] = useState<"main" | "accounts">(
-    "main"
-  );
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-
+  const [currentScreen, setCurrentScreen] = useState<"main" | "accounts">("main");
   const styles = getStyles(theme);
+
+  const navigateToAccounts = async () => {
+    setCurrentScreen("accounts");
+  };
 
   return (
     <View style={styles.mainContainer}>
       {currentScreen === "main" ? (
         <MainScreen />
       ) : (
-        <AccountsScreen transactions={transactions} />
+        <AccountsScreen />
       )}
 
       <TouchableOpacity
@@ -47,10 +46,9 @@ function Index() {
           <Text style={styles.navButtonText}>Ingresos</Text>
         </TouchableOpacity>
 
-        
         <TouchableOpacity
           style={styles.navButton}
-          onPress={() => setCurrentScreen("accounts")}
+          onPress={navigateToAccounts}
           accessibilityLabel="Ver Registros"
         >
           <Scale color={theme === "light" ? "#000" : "#FFF"} size={24} />

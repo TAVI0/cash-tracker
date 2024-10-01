@@ -1,29 +1,26 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { ThemeProvider, useTheme } from './ThemeContext';
+import { useTheme } from './ThemeContext';
 import { Transaction } from './types';
 import { Plus } from 'lucide-react-native';
 import CategoriesModal from './Categories/CategoriesModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function MainScreen(){
-    const { theme, toggleTheme } = useTheme();
+
+export default function MainScreen() {
+    const { theme } = useTheme();
     const [type, setType] = useState<'ingreso' | 'egreso'>('egreso');
     const [typeCard, setTypeCard] = useState<'Debito' | 'Credito' | 'Efectivo'>('Credito');
-    const [categoryAdd, setCategoryAdd] = useState(false);
     const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
-    const [category, setCategory] = useState('');
     const [categories, setCategories] = useState(['Servicio', 'Alimentos', 'Ropa']);
-    const [newCategory, setNewCategory] = useState('');
     const [selectedCard, setSelectedCard] = useState('');
     const [installments, setInstallments] = useState('');
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [name, setName] = useState('');
-    const [color, setColor] = useState('#888');
     const styles = getStyles(theme);
     const [showCategoriesModal, setShowCategoriesModal] = useState(false);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -50,27 +47,44 @@ export default function MainScreen(){
       }
     };
   
-    const handleRegister = () => {
-      if (amount && categories && name) {
+    const handleRegister = async () => {
+      if (amount && selectedCategories.length > 0 && name) {
         const newTransaction: Transaction = {
           id: Date.now().toString(),
           type: type,
           amount: parseFloat(amount),
           description,
           date: date.toLocaleDateString(),
-          category: categories,
+          categories: selectedCategories,
           name,
           installments: typeCard === 'Credito' ? installments : undefined,
           cardName: typeCard !== 'Efectivo' ? selectedCard : undefined,
         };
-        setTransactions([newTransaction, ...transactions]);
-        // Limpiar los campos después de registrar
-        setAmount('');
-        setDescription('');
-        setCategory('');
-        setName('');
-        setInstallments('');
-        setSelectedCard('');
+  
+        try {
+          // Obtener transacciones existentes
+          const existingTransactionsJson = await AsyncStorage.getItem('transactions');
+          const existingTransactions = existingTransactionsJson ? JSON.parse(existingTransactionsJson) : [];
+          
+          // Agregar nueva transacción
+          const updatedTransactions = [newTransaction, ...existingTransactions];
+          
+          // Guardar transacciones actualizadas
+          await AsyncStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+          
+          console.log('Transacción guardada:', newTransaction);
+          console.log('Todas las transacciones:', updatedTransactions);
+  
+          // Limpiar los campos después de registrar
+          setAmount('');
+          setDescription('');
+          setName('');
+          setInstallments('');
+          setSelectedCard('');
+          setSelectedCategories([]);
+        } catch (e) {
+          console.error('Error al guardar la transacción:', e);
+        }
       }
     };
 
@@ -112,7 +126,7 @@ export default function MainScreen(){
           <TextInput
             style={styles.input}
             placeholder="Nombre"
-            placeholderTextColor={color}
+            placeholderTextColor='#888'
             value={name}
             onChangeText={setName}
           />
@@ -120,7 +134,7 @@ export default function MainScreen(){
           <TextInput
             style={styles.input}
             placeholder="Valor"
-            placeholderTextColor={color}
+            placeholderTextColor='#888'
             keyboardType="numeric"
             value={amount}
             onChangeText={setAmount}
@@ -129,7 +143,7 @@ export default function MainScreen(){
           <TextInput
             style={styles.input}
             placeholder="Descripción"
-            placeholderTextColor={color}
+            placeholderTextColor='#888'
             value={description}
             onChangeText={setDescription}
           />
@@ -208,7 +222,7 @@ export default function MainScreen(){
                 <TextInput
                   style={styles.input}
                   placeholder="Cantidad de cuotas"
-                  placeholderTextColor={color}
+                  placeholderTextColor='#888'
                   keyboardType="numeric"
                   value={installments}
                   onChangeText={setInstallments}
