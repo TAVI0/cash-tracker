@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useTheme } from './ThemeContext';
 import { Transaction } from './types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { X } from 'lucide-react-native';
 
 export default function AccountsScreen() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -27,8 +28,29 @@ export default function AccountsScreen() {
     }
   };
 
+  const deleteTransaction = async(id:string)=>{
+
+    // Filtrar las transacciones para eliminar la que coincide con el ID
+    const updatedTransactions = transactions.filter(transaction => transaction.id !== id);
+    
+    // Actualizar el estado con las transacciones filtradas
+    setTransactions(updatedTransactions);
+
+    // Guardar las transacciones actualizadas en AsyncStorage
+    await AsyncStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+
+    // Mostrar las transacciones actualizadas en el log
+    console.log('Transacciones guardadas:', updatedTransactions);
+  };
+
   const renderItem = ({ item }: { item: Transaction }) => (
     <View style={styles.transactionItem}>
+      <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => deleteTransaction(item.id)}
+          >
+            <X color={theme === 'light' ? '#000' : '#FFF'} size={12} />
+      </TouchableOpacity>
       <View style={styles.transactionHeader}>
         <Text style={styles.transactionName}>{item.name}</Text>
         <Text style={styles.transactionAmount}>
@@ -150,5 +172,9 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     color: theme === 'light' ? '#666' : '#AAA',
     textAlign: 'center',
     marginTop: 20,
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 5,
   },
 });
