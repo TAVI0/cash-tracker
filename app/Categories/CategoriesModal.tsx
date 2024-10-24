@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, FlatList, Modal } from 'react-native';
 import { X, Plus } from 'lucide-react-native';
 import { useTheme } from '../ThemeContext';
-import CategoryModal from './CategoryModal';
+import CategoryModal from './EditCategoryModal';
 
 interface CategoriesModalProps {
   isVisible: boolean;

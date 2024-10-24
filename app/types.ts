@@ -14,6 +14,7 @@ export interface Category{
     id: string;
     name: string;
     color?: string;
+    primary: boolean;
 }
 
 export interface Accounts{
