@@ -3,26 +3,27 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal } from 'reac
 import { X, Trash } from 'lucide-react-native';
 import ConfirmationModal from './ConfirmationModal';
 import { useTheme } from '../ThemeContext';
+import { Category } from '../types';
 
 interface CategoryModalProps {
   isVisible: boolean;
   onClose: () => void;
-  category: string;
+  category: Category;
   onEdit: (newName: string) => void;
   onDelete: () => void;
 }
 
 export default function CategoryModal({ isVisible, onClose, category, onEdit, onDelete }: CategoryModalProps) {
   const { theme } = useTheme();
-  const [categoryName, setCategoryName] = useState(category);
+  const [categoryName, setCategoryName] = useState(category.name);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
-    setCategoryName(category);
-  }, [category]);
+    setCategoryName(category.name);
+  }, [category.name]);
 
   const handleSave = () => {
-    if (categoryName.trim() !== category) {
+    if (categoryName.trim() !== category.name) {
       onEdit(categoryName.trim());
     }
     onClose();

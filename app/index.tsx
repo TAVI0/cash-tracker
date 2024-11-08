@@ -4,7 +4,10 @@ import { ThemeProvider, useTheme } from "./ThemeContext";
 import { Sun, Moon, Scale, DollarSign } from "lucide-react-native";
 import AccountsScreen from "./AccountsScreen";
 import MainScreen from "./MainScreen";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+declare global {
+  var AsyncStorage: typeof import('@react-native-async-storage/async-storage').default;
+}
 function Index() {
   const { theme, toggleTheme } = useTheme();
   const [currentScreen, setCurrentScreen] = useState<"main" | "accounts">("main");
@@ -13,6 +16,7 @@ function Index() {
   const navigateToAccounts = async () => {
     setCurrentScreen("accounts");
   };
+  global.AsyncStorage = AsyncStorage;
 
   return (
     <View style={styles.mainContainer}>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTheme } from './ThemeContext';
-import { Transaction } from './types';
+import { Category, Transaction } from './types';
 import { Plus } from 'lucide-react-native';
 import CategoriesModal from './Categories/CategoriesModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,7 +16,7 @@ export default function MainScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [categories, setCategories] = useState(['Servicio', 'Alimentos', 'Ropa']);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCard, setSelectedCard] = useState('');
   const [installments, setInstallments] = useState('');
   const [name, setName] = useState('');
@@ -40,7 +40,7 @@ export default function MainScreen() {
     }
   };
 
-  const saveCategories = async (updatedCategories: string[]) => {
+  const saveCategories = async (updatedCategories: Category[]) => {
     try {
       await AsyncStorage.setItem('categories', JSON.stringify(updatedCategories));
     } catch (e) {
@@ -48,7 +48,7 @@ export default function MainScreen() {
     }
   };
 
-  const addNewCategory = (newCategory: string) => {
+  const addNewCategory = (newCategory: Category) => {
     if (newCategory && !categories.includes(newCategory)) {
       const updatedCategories = [...categories, newCategory];
       setCategories(updatedCategories);
@@ -56,19 +56,25 @@ export default function MainScreen() {
     }
   };
 
-  const editCategory = (oldName: string, newName: string) => {
+  const editCategory = () => {
+    /* 
     const updatedCategories = categories.map(cat => cat === oldName ? newName : cat);
     setCategories(updatedCategories);
     setSelectedCategories(prev => prev.map(cat => cat === oldName ? newName : cat));
     saveCategories(updatedCategories);
+    */
   };
 
+
   const deleteCategory = (categoryToDelete: string) => {
+   /*
     const updatedCategories = categories.filter(cat => cat !== categoryToDelete);
     setCategories(updatedCategories);
     setSelectedCategories(prev => prev.filter(cat => cat !== categoryToDelete));
     saveCategories(updatedCategories);
+  */
   };
+
 
   const onConfirmCategories = (confirmedCategories: string[]) => {
     setSelectedCategories(confirmedCategories);

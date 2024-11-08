@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, FlatList, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
 import { X, Plus } from 'lucide-react-native';
 import { useTheme } from '../ThemeContext';
 import CategoryModal from './EditCategoryModal';
+import AddCategoryModal from './AddCategoryModal';
+import { Category } from '../types';
 
 interface CategoriesModalProps {
   isVisible: boolean;
   onClose: () => void;
-  categories: string[];
+  categories: Category[];
   selectedCategories: string[];
-  onToggleCategory: (category: string) => void;
-  onAddCategory: (category: string) => void;
+  onToggleCategory: (categoryId: string) => void;
+  onAddCategory: (category: Category) => void;
   onEditCategory: (oldName: string, newName: string) => void;
-  onDeleteCategory: (category: string) => void;
+  onDeleteCategory: (categoryId: string) => void;
   onConfirmCategories: (categories: string[]) => void;
 }
 
@@ -21,7 +23,6 @@ export default function CategoriesModal({
   onClose,
   categories,
   selectedCategories,
-  onToggleCategory,
   onAddCategory,
   onEditCategory,
   onDeleteCategory,
@@ -29,41 +30,47 @@ export default function CategoriesModal({
 }: CategoriesModalProps) {
   const { theme } = useTheme();
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState('');
   const [tempSelectedCategories, setTempSelectedCategories] = useState<string[]>(selectedCategories);
 
   const styles = getStyles(theme);
 
-  const openCategoryModal = (category: string) => {
+  const openCategoryModal = (category: Category) => {
     setSelectedCategory(category);
     setShowCategoryModal(true);
   };
 
   const handleEditCategory = (newName: string) => {
-    onEditCategory(selectedCategory, newName);
+    if (selectedCategory) {
+      onEditCategory(selectedCategory.name, newName);
+    }
     setShowCategoryModal(false);
   };
 
   const handleDeleteCategory = () => {
-    onDeleteCategory(selectedCategory);
+    if (selectedCategory) {
+      onDeleteCategory(selectedCategory.id);
+    }
     setShowCategoryModal(false);
   };
 
-  const handleAddCategory = () => {
-    if (newCategoryName.trim()) {
-      onAddCategory(newCategoryName.trim());
-      setNewCategoryName('');
-      setShowAddCategoryModal(false);
+  const handleAddCategory = (newCategoryName: string, color: string, primary: boolean) => {
+    const newCategory: Category = {
+      id: Date.now().toString(),
+      name: newCategoryName,
+      color,
+      primary
     }
+    onAddCategory(newCategory);
+    setShowAddCategoryModal(false);
   };
 
-  const handleToggleCategory = (category: string) => {
+  const handleToggleCategory = (categoryId: string) => {
     setTempSelectedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
+      prev.includes(categoryId)
+        ? prev.filter(c => c !== categoryId)
+        : [...prev, categoryId]
     );
   };
 
@@ -72,16 +79,17 @@ export default function CategoriesModal({
     onClose();
   };
 
-  const renderCategoryItem = ({ item }: { item: string }) => (
+  const renderCategoryItem = ({ item }: { item: Category }) => (
     <TouchableOpacity
       style={[
         styles.categoryItem,
-        tempSelectedCategories.includes(item) && styles.selectedCategoryItem
+        tempSelectedCategories.includes(item.id) && styles.selectedCategoryItem,
+        { backgroundColor: item.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A') }
       ]}
-      onPress={() => handleToggleCategory(item)}
+      onPress={() => handleToggleCategory(item.id)}
       onLongPress={() => openCategoryModal(item)}
     >
-      <Text style={styles.categoryItemText}>{item}</Text>
+      <Text style={styles.categoryItemText}>{item.name}</Text>
     </TouchableOpacity>
   );
 
@@ -105,7 +113,7 @@ export default function CategoriesModal({
             <FlatList
               data={categories}
               renderItem={renderCategoryItem}
-              keyExtractor={(item) => item}
+              keyExtractor={(item) => item.id}
               numColumns={3}
               style={styles.categoriesList}
             />
@@ -127,45 +135,21 @@ export default function CategoriesModal({
         </View>
       </Modal>
 
-      <CategoryModal
-        isVisible={showCategoryModal}
-        onClose={() => setShowCategoryModal(false)}
-        category={selectedCategory}
-        onDelete={handleDeleteCategory}
-        onEdit={handleEditCategory}
-      />
+      {selectedCategory && (
+        <CategoryModal
+          isVisible={showCategoryModal}
+          onClose={() => setShowCategoryModal(false)}
+          category={selectedCategory}
+          onDelete={handleDeleteCategory}
+          onEdit={handleEditCategory}
+        />
+      )}
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showAddCategoryModal}
-        onRequestClose={() => setShowAddCategoryModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.addCategoryModalContent}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setShowAddCategoryModal(false)}
-            >
-              <X color={theme === 'light' ? '#000' : '#FFF'} size={24} />
-            </TouchableOpacity>
-            <Text style={styles.modalTitle}>Agregar Nueva Categoría</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre de la categoría"
-              placeholderTextColor={theme === 'dark' ? '#888' : '#999'}
-              value={newCategoryName}
-              onChangeText={setNewCategoryName}
-            />
-            <TouchableOpacity 
-              style={styles.addButton}
-              onPress={handleAddCategory}
-            >
-              <Text style={styles.addButtonText}>Agregar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <AddCategoryModal
+         isVisible={showAddCategoryModal}
+         onClose={() => setShowAddCategoryModal(false)}
+         onAddCategory={handleAddCategory}
+      />
     </>
   );
 }
@@ -180,12 +164,6 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   modalContent: {
     width: '90%',
     maxHeight: '80%',
-    backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
-    borderRadius: 20,
-    padding: 20,
-  },
-  addCategoryModalContent: {
-    width: '80%',
     backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
     borderRadius: 20,
     padding: 20,
