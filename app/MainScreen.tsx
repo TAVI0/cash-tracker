@@ -190,8 +190,10 @@ export default function MainScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <TouchableOpacity
               style={styles.categoryButton}
-              onPress={() => setShowCategoriesModal(true)}
-            >
+              onPress={() => {
+                console.log(categories);
+                setShowCategoriesModal(true);
+              }}            >
               <Plus color={theme === 'light' ? '#007AFF' : '#4DA6FF'} size={24} />
             </TouchableOpacity>
 

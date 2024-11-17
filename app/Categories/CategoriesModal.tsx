@@ -32,7 +32,7 @@ export default function CategoriesModal({
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
-  const [tempSelectedCategories, setTempSelectedCategories] = useState<string[]>(selectedCategories);
+  const [tempSelectedCategories, setTempSelectedCategories] = useState<string[]>([]);
 
   const styles = getStyles(theme);
 
@@ -67,10 +67,8 @@ export default function CategoriesModal({
   };
 
   const handleToggleCategory = (categoryId: string) => {
-    setTempSelectedCategories(prev =>
-      prev.includes(categoryId)
-        ? prev.filter(c => c !== categoryId)
-        : [...prev, categoryId]
+    setTempSelectedCategories(
+      prev => prev.includes(categoryId) ? prev.filter(c => c !== categoryId) : [...prev, categoryId]
     );
   };
 
@@ -84,12 +82,17 @@ export default function CategoriesModal({
       style={[
         styles.categoryItem,
         tempSelectedCategories.includes(item.id) && styles.selectedCategoryItem,
-        { backgroundColor: item.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A') }
+        { backgroundColor: tempSelectedCategories.includes(item.id) ? '#4CAF50' : (item.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A')) }
       ]}
       onPress={() => handleToggleCategory(item.id)}
       onLongPress={() => openCategoryModal(item)}
     >
-      <Text style={styles.categoryItemText}>{item.name}</Text>
+      <Text style={[
+        styles.categoryItemText,
+        tempSelectedCategories.includes(item.id) && styles.selectedCategoryItemText
+      ]}>
+        {item.name}
+      </Text>
     </TouchableOpacity>
   );
 
@@ -189,14 +192,16 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme === 'light' ? '#F0F0F0' : '#3A3A3A',
   },
   selectedCategoryItem: {
-    backgroundColor: theme === 'light' ? '#E3F2FD' : '#1A3A5A',
+    backgroundColor: '#4CAF50',
   },
   categoryItemText: {
     color: theme === 'light' ? '#000000' : '#FFFFFF',
     textAlign: 'center',
+  },
+  selectedCategoryItemText: {
+    color: '#FFFFFF',
   },
   addCategoryContainer: {
     flexDirection: 'row',
