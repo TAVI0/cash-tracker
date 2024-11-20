@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View } from "react-native";
 import { X } from "lucide-react-native";
 import { Modal, StyleSheet, Text } from "react-native";
-import { TextInput, TouchableOpacity, GestureHandlerRootView, Switch } from "react-native-gesture-handler";
+import { TextInput, TouchableOpacity, GestureHandlerRootView, Switch, FlatList } from "react-native-gesture-handler";
 import { useTheme } from "../ThemeContext";
 import { Category } from '../types';
 
@@ -10,25 +10,40 @@ interface AddCategoryModalProps {
   isVisible: boolean;
   onClose: () => void;
   onAddCategory: (name: string, color: string, isPrimary: boolean) => void;
-  //onAddCategory: (category:Category) => void;
 }
+
+const colorOptions = [
+  '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
+  '#98D8C8', '#F06292', '#AED581', '#FFD54F'
+];
 
 export default function AddCategoryModal({ isVisible, onClose, onAddCategory }: AddCategoryModalProps) {
   const { theme } = useTheme();
   const styles = getStyles(theme);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [isPrimaryCategory, setIsPrimaryCategory] = useState(false);
-  const [colorCategory, setColorCategory] = useState('')
+  const [selectedColor, setSelectedColor] = useState('');
 
   const handleAddCategory = () => {
     if (newCategoryName.trim()) {
-        
-      onAddCategory(newCategoryName.trim(), colorCategory, isPrimaryCategory);
+      onAddCategory(newCategoryName.trim(), selectedColor, isPrimaryCategory);
       setNewCategoryName('');
       setIsPrimaryCategory(false);
+      setSelectedColor('');
       onClose();
     }
   };
+
+  const renderColorButton = ({ item }: { item: string }) => (
+    <TouchableOpacity
+      style={[
+        styles.colorButton,
+        { backgroundColor: item },
+        selectedColor === item && styles.selectedColorButton
+      ]}
+      onPress={() => setSelectedColor(item)}
+    />
+  );
 
   return (
     <Modal
@@ -64,6 +79,18 @@ export default function AddCategoryModal({ isVisible, onClose, onAddCategory }: 
                 thumbColor={isPrimaryCategory ? "#f5dd4b" : "#f4f3f4"}
               />
             </View>
+            {isPrimaryCategory && (
+              <View style={styles.colorPickerContainer}>
+                <Text style={styles.colorPickerLabel}>Seleccionar Color:</Text>
+                <FlatList
+                  data={colorOptions}
+                  renderItem={renderColorButton}
+                  keyExtractor={(item) => item}
+                  numColumns={4}
+                  contentContainerStyle={styles.colorButtonsContainer}
+                />
+              </View>
+            )}
 
             <TouchableOpacity 
               style={styles.addButton}
@@ -129,5 +156,26 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   switchLabel: {
     fontSize: 16,
     color: theme === 'light' ? '#000000' : '#FFFFFF',
+  },
+  colorPickerContainer: {
+    marginBottom: 20,
+  },
+  colorPickerLabel: {
+    fontSize: 16,
+    marginBottom: 10,
+    color: theme === 'light' ? '#000000' : '#FFFFFF',
+  },
+  colorButtonsContainer: {
+    justifyContent: 'space-between',
+  },
+  colorButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    margin: 5,
+  },
+  selectedColorButton: {
+    borderWidth: 2,
+    borderColor: theme === 'light' ? '#000000' : '#FFFFFF',
   },
 });
