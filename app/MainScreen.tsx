@@ -21,7 +21,7 @@ export default function MainScreen() {
   const [installments, setInstallments] = useState('');
   const [name, setName] = useState('');
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
 
   const styles = getStyles(theme);
 
@@ -76,7 +76,7 @@ export default function MainScreen() {
   };
 
 
-  const onConfirmCategories = (confirmedCategories: string[]) => {
+  const onConfirmCategories = (confirmedCategories: Category[]) => {
     setSelectedCategories(confirmedCategories);
   };
 
@@ -200,11 +200,11 @@ export default function MainScreen() {
             {selectedCategories.map((cat, index) => (
               <TouchableOpacity
                 key={index}
-                style={[styles.categoryButton, styles.selectedButton]}
+                style={[styles.categoryButton, styles.selectedButton,{backgroundColor: cat.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A'),}]}
                 onPress={() => setShowCategoriesModal(true)}
               >
                 <Text style={styles.selectedCategoryButtonText}>
-                  {cat}
+                  {cat.name}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -312,7 +312,7 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
   },
   selectedButton: {
-    backgroundColor: theme === 'light' ? '#007AFF' : '#4DA6FF',
+    backgroundColor: theme === 'light' ? '#F0F0F0' : '#3A3A3A',
   },
   buttonText: {
     color: theme === 'light' ? '#007AFF' : '#4DA6FF',
@@ -347,10 +347,12 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   },
   categoryButton: {
     backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    marginRight: 10,
+    flex: 1,
+    margin: 5,
+    padding: 13,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   selectedCategoryButtonText: {
     color: '#FFFFFF',

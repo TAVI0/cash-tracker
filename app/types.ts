@@ -4,7 +4,7 @@ export interface Transaction {
     amount: number;
     description?: string;
     date: string;
-    categories: string[];
+    categories: Category[];
     name: string;
     installments?: string;
     cardName?: string;

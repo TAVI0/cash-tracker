@@ -10,12 +10,12 @@ interface CategoriesModalProps {
   isVisible: boolean;
   onClose: () => void;
   categories: Category[];
-  selectedCategories: string[];
+  selectedCategories: Category[];
   onToggleCategory: (categoryId: string) => void;
   onAddCategory: (category: Category) => void;
   onEditCategory: (oldName: string, newName: string) => void;
   onDeleteCategory: (categoryId: string) => void;
-  onConfirmCategories: (categories: string[]) => void;
+  onConfirmCategories: (categories: Category[]) => void;
 }
 
 export default function CategoriesModal({
@@ -32,7 +32,7 @@ export default function CategoriesModal({
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
-  const [tempSelectedCategories, setTempSelectedCategories] = useState<string[]>([]);
+  const [tempSelectedCategories, setTempSelectedCategories] = useState<Category[]>([]);
 
   const styles = getStyles(theme);
 
@@ -66,9 +66,9 @@ export default function CategoriesModal({
     setShowAddCategoryModal(false);
   };
 
-  const handleToggleCategory = (categoryId: string) => {
+  const handleToggleCategory = (category: Category) => {
     setTempSelectedCategories(
-      prev => prev.includes(categoryId) ? prev.filter(c => c !== categoryId) : [...prev, categoryId]
+      prev => prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
     );
   };
 
@@ -81,16 +81,22 @@ export default function CategoriesModal({
     <TouchableOpacity
       style={[
         styles.categoryItem,
-        tempSelectedCategories.includes(item.id) && styles.selectedCategoryItem,
-        { backgroundColor: tempSelectedCategories.includes(item.id) ? '#4CAF50' : (item.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A')) }
+        tempSelectedCategories.includes(item) && styles.selectedCategoryItem,
+        {
+          backgroundColor: item.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A'),
+          borderColor: tempSelectedCategories.includes(item) ? '#4CAF50' : 'transparent',
+          borderWidth: tempSelectedCategories.includes(item) ? 2 : 2, // Borde visible solo si está seleccionado
+        },
       ]}
-      onPress={() => handleToggleCategory(item.id)}
+      onPress={() => handleToggleCategory(item)}
       onLongPress={() => openCategoryModal(item)}
     >
-      <Text style={[
-        styles.categoryItemText,
-        tempSelectedCategories.includes(item.id) && styles.selectedCategoryItemText
-      ]}>
+      <Text
+        style={[
+          styles.categoryItemText,
+          tempSelectedCategories.includes(item) && styles.selectedCategoryItemText,
+        ]}
+      >
         {item.name}
       </Text>
     </TouchableOpacity>
@@ -188,7 +194,7 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
   categoryItem: {
     flex: 1,
     margin: 5,
-    padding: 15,
+    padding: 13,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
