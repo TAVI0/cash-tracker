@@ -5,28 +5,16 @@ import { useTheme } from '../ThemeContext';
 import CategoryModal from './EditCategoryModal';
 import AddCategoryModal from './AddCategoryModal';
 import { Category } from '../types';
+import { useCategoryContext } from './CategoryContext';
 
 interface CategoriesModalProps {
   isVisible: boolean;
   onClose: () => void;
-  categories: Category[];
-  selectedCategories: Category[];
-  onToggleCategory: (categoryId: string) => void;
-  onAddCategory: (category: Category) => void;
-  onEditCategory: (oldName: string, newName: string) => void;
-  onDeleteCategory: (categoryId: string) => void;
-  onConfirmCategories: (categories: Category[]) => void;
 }
 
 export default function CategoriesModal({
   isVisible,
-  onClose,
-  categories,
-  selectedCategories,
-  onAddCategory,
-  onEditCategory,
-  onDeleteCategory,
-  onConfirmCategories
+  onClose
 }: CategoriesModalProps) {
   const { theme } = useTheme();
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -36,34 +24,12 @@ export default function CategoriesModal({
 
   const styles = getStyles(theme);
 
+  const { categories,setSelectedCategories } = useCategoryContext();
+
+
   const openCategoryModal = (category: Category) => {
     setSelectedCategory(category);
     setShowCategoryModal(true);
-  };
-
-  const handleEditCategory = (newName: string) => {
-    if (selectedCategory) {
-      onEditCategory(selectedCategory.name, newName);
-    }
-    setShowCategoryModal(false);
-  };
-
-  const handleDeleteCategory = () => {
-    if (selectedCategory) {
-      onDeleteCategory(selectedCategory.id);
-    }
-    setShowCategoryModal(false);
-  };
-
-  const handleAddCategory = (newCategoryName: string, color: string, primary: boolean) => {
-    const newCategory: Category = {
-      id: Date.now().toString(),
-      name: newCategoryName,
-      color,
-      primary
-    }
-    onAddCategory(newCategory);
-    setShowAddCategoryModal(false);
   };
 
   const handleToggleCategory = (category: Category) => {
@@ -73,7 +39,7 @@ export default function CategoriesModal({
   };
 
   const handleConfirmCategories = () => {
-    onConfirmCategories(tempSelectedCategories);
+    setSelectedCategories(tempSelectedCategories)
     onClose();
   };
 
@@ -84,7 +50,7 @@ export default function CategoriesModal({
         tempSelectedCategories.includes(item) && styles.selectedCategoryItem,
         {
           backgroundColor: item.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A'),
-          borderColor: tempSelectedCategories.includes(item) ? '#4CAF50' : 'transparent',
+          borderColor: tempSelectedCategories.includes(item) ? '#FFFFFF' : 'transparent',
           borderWidth: tempSelectedCategories.includes(item) ? 2 : 2, // Borde visible solo si está seleccionado
         },
       ]}
@@ -112,12 +78,6 @@ export default function CategoriesModal({
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={onClose}
-            >
-              <X color={theme === 'light' ? '#000' : '#FFF'} size={24} />
-            </TouchableOpacity>
             <Text style={styles.modalTitle}>Seleccionar Categorías</Text>
             <FlatList
               data={categories}
@@ -149,15 +109,12 @@ export default function CategoriesModal({
           isVisible={showCategoryModal}
           onClose={() => setShowCategoryModal(false)}
           category={selectedCategory}
-          onDelete={handleDeleteCategory}
-          onEdit={handleEditCategory}
         />
       )}
 
       <AddCategoryModal
          isVisible={showAddCategoryModal}
          onClose={() => setShowAddCategoryModal(false)}
-         onAddCategory={handleAddCategory}
       />
     </>
   );
@@ -176,10 +133,6 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     backgroundColor: theme === 'light' ? '#FFFFFF' : '#2A2A2A',
     borderRadius: 20,
     padding: 20,
-  },
-  closeButton: {
-    alignSelf: 'flex-end',
-    padding: 10,
   },
   modalTitle: {
     fontSize: 18,

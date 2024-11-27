@@ -7,6 +7,7 @@ import { Plus } from 'lucide-react-native';
 import CategoriesModal from './Categories/CategoriesModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCategoryContext } from './Categories/CategoryContext';
 
 export default function MainScreen() {
   const { theme } = useTheme();
@@ -16,69 +17,19 @@ export default function MainScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCard, setSelectedCard] = useState('');
   const [installments, setInstallments] = useState('');
   const [name, setName] = useState('');
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
 
   const styles = getStyles(theme);
+
+  const { categories, selectedCategories, setSelectedCategories, loadCategories } = useCategoryContext();
+
 
   useEffect(() => {
     loadCategories();
   }, []);
-
-  const loadCategories = async () => {
-    try {
-      const savedCategories = await AsyncStorage.getItem('categories');
-      if (savedCategories) {
-        setCategories(JSON.parse(savedCategories));
-      }
-    } catch (e) {
-      console.error('Error loading categories:', e);
-    }
-  };
-
-  const saveCategories = async (updatedCategories: Category[]) => {
-    try {
-      await AsyncStorage.setItem('categories', JSON.stringify(updatedCategories));
-    } catch (e) {
-      console.error('Error saving categories:', e);
-    }
-  };
-
-  const addNewCategory = (newCategory: Category) => {
-    if (newCategory && !categories.includes(newCategory)) {
-      const updatedCategories = [...categories, newCategory];
-      setCategories(updatedCategories);
-      saveCategories(updatedCategories);
-    }
-  };
-
-  const editCategory = () => {
-    /* 
-    const updatedCategories = categories.map(cat => cat === oldName ? newName : cat);
-    setCategories(updatedCategories);
-    setSelectedCategories(prev => prev.map(cat => cat === oldName ? newName : cat));
-    saveCategories(updatedCategories);
-    */
-  };
-
-
-  const deleteCategory = (categoryToDelete: string) => {
-   /*
-    const updatedCategories = categories.filter(cat => cat !== categoryToDelete);
-    setCategories(updatedCategories);
-    setSelectedCategories(prev => prev.filter(cat => cat !== categoryToDelete));
-    saveCategories(updatedCategories);
-  */
-  };
-
-
-  const onConfirmCategories = (confirmedCategories: Category[]) => {
-    setSelectedCategories(confirmedCategories);
-  };
 
   const onDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -280,13 +231,7 @@ export default function MainScreen() {
       <CategoriesModal
         isVisible={showCategoriesModal}
         onClose={() => setShowCategoriesModal(false)}
-        categories={categories}
-        selectedCategories={selectedCategories}
-        onToggleCategory={() => {}}
-        onAddCategory={addNewCategory}
-        onEditCategory={editCategory}
-        onDeleteCategory={deleteCategory}
-        onConfirmCategories={onConfirmCategories}
+        //onConfirmCategories={onConfirmCategories}
       />
     </SafeAreaView>
   );

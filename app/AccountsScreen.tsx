@@ -60,7 +60,7 @@ export default function AccountsScreen() {
       <Text style={styles.transactionDescription}>{item.description}</Text>
       <View style={styles.categoriesContainer}>
         {item.categories.map((cat, index) => (
-          <Text key={index} style={styles.categoryTag}>{cat}</Text>
+          <Text key={index} style={styles.categoryTag}>{cat.name}</Text>
         ))}
       </View>
       <View style={styles.transactionFooter}>

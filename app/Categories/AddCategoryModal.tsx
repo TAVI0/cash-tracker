@@ -5,11 +5,11 @@ import { Modal, StyleSheet, Text } from "react-native";
 import { TextInput, TouchableOpacity, GestureHandlerRootView, Switch, FlatList } from "react-native-gesture-handler";
 import { useTheme } from "../ThemeContext";
 import { Category } from '../types';
+import { useCategoryContext } from './CategoryContext';
 
 interface AddCategoryModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onAddCategory: (name: string, color: string, isPrimary: boolean) => void;
 }
 
 const colorOptions = [
@@ -17,16 +17,24 @@ const colorOptions = [
   '#98D8C8', '#F06292', '#AED581', '#FFD54F'
 ];
 
-export default function AddCategoryModal({ isVisible, onClose, onAddCategory }: AddCategoryModalProps) {
+export default function AddCategoryModal({ isVisible, onClose }: AddCategoryModalProps) {
   const { theme } = useTheme();
   const styles = getStyles(theme);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [isPrimaryCategory, setIsPrimaryCategory] = useState(false);
   const [selectedColor, setSelectedColor] = useState('');
 
+  const { addCategory } = useCategoryContext();
+
   const handleAddCategory = () => {
     if (newCategoryName.trim()) {
-      onAddCategory(newCategoryName.trim(), selectedColor, isPrimaryCategory);
+      const newCategory: Category = {
+        id: Date.now().toString(),
+        name: newCategoryName,
+        color: selectedColor,
+        primary: isPrimaryCategory
+      }
+      addCategory(newCategory)
       setNewCategoryName('');
       setIsPrimaryCategory(false);
       setSelectedColor('');

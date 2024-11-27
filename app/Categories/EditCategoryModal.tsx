@@ -4,28 +4,27 @@ import { X, Trash } from 'lucide-react-native';
 import ConfirmationModal from './ConfirmationModal';
 import { useTheme } from '../ThemeContext';
 import { Category } from '../types';
+import { useCategoryContext } from './CategoryContext';
 
 interface CategoryModalProps {
   isVisible: boolean;
   onClose: () => void;
   category: Category;
-  onEdit: (newName: string) => void;
-  onDelete: () => void;
 }
 
-export default function CategoryModal({ isVisible, onClose, category, onEdit, onDelete }: CategoryModalProps) {
+export default function CategoryModal({ isVisible, onClose, category }: CategoryModalProps) {
   const { theme } = useTheme();
   const [categoryName, setCategoryName] = useState(category.name);
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const { deleteCategory } = useCategoryContext();
 
   useEffect(() => {
     setCategoryName(category.name);
   }, [category.name]);
 
   const handleSave = () => {
-    if (categoryName.trim() !== category.name) {
-      onEdit(categoryName.trim());
-    }
+    //ToDo actualizar categoria
     onClose();
   };
 
@@ -34,7 +33,7 @@ export default function CategoryModal({ isVisible, onClose, category, onEdit, on
   };
 
   const confirmDelete = () => {
-    onDelete();
+    deleteCategory(category);
     setShowConfirmation(false);
     onClose();
   };
@@ -62,7 +61,7 @@ export default function CategoryModal({ isVisible, onClose, category, onEdit, on
               <TextInput
                 style={styles.input}
                 value={categoryName}
-                onChangeText={setCategoryName}
+                //onChangeText={setCategoryName}
                 autoFocus
                 selectTextOnFocus
                 accessibilityLabel={`Editar nombre de la categoría: ${categoryName}`}

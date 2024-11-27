@@ -5,6 +5,8 @@ import { Sun, Moon, Scale, DollarSign } from "lucide-react-native";
 import AccountsScreen from "./AccountsScreen";
 import MainScreen from "./MainScreen";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CategoryProvider } from "./Categories/CategoryContext";
+
 declare global {
   var AsyncStorage: typeof import('@react-native-async-storage/async-storage').default;
 }
@@ -19,6 +21,8 @@ function Index() {
   global.AsyncStorage = AsyncStorage;
 
   return (
+    <CategoryProvider>
+      
     <View style={styles.mainContainer}>
       {currentScreen === "main" ? (
         <MainScreen />
@@ -54,12 +58,13 @@ function Index() {
           style={styles.navButton}
           onPress={navigateToAccounts}
           accessibilityLabel="Ver Registros"
-        >
+          >
           <Scale color={theme === "light" ? "#000" : "#FFF"} size={24} />
           <Text style={styles.navButtonText}>Registros</Text>
         </TouchableOpacity>
       </View>
     </View>
+  </CategoryProvider>
   );
 }
 
