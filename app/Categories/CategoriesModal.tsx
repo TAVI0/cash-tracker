@@ -56,11 +56,19 @@ export default function CategoriesModal({
   };
 
   const handleConfirmCategories = () => {
-    setSelectedCategories(tempSelectedCategories)
+    const sortedCategories = [...tempSelectedCategories].sort((a, b) => {
+      if (a.primary && !b.primary) return -1;
+      if (!a.primary && b.primary) return 1;
+      return 0;
+    })
+    setSelectedCategories(sortedCategories)
     onClose();
   };
 
-  const renderCategoryItem = ({ item }: { item: Category }) => (
+  const renderCategoryItem = ({ item }: { item: Category }) => {
+    
+    
+    return(
     <TouchableOpacity
       style={[
         styles.categoryItem,
@@ -83,7 +91,7 @@ export default function CategoriesModal({
         {item.name}
       </Text>
     </TouchableOpacity>
-  );
+  )};
 
   return (
     <>

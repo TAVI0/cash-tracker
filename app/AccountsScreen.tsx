@@ -43,8 +43,12 @@ export default function AccountsScreen() {
     console.log('Transacciones guardadas:', updatedTransactions);
   };
 
-  const renderItem = ({ item }: { item: Transaction }) => (
-    <View style={styles.transactionItem}>
+  const renderItem = ({ item }: { item: Transaction }) => {
+    const primaryCategory = item.categories.find((cat) => cat.primary);
+    const categoryColor = primaryCategory?.color || (theme === 'light' ? '#FFF' : '#2A2A2A');
+    
+    return(
+    <View style={[styles.transactionItem]}>
       <TouchableOpacity
             style={styles.closeButton}
             onPress={() => deleteTransaction(item.id)}
@@ -60,7 +64,7 @@ export default function AccountsScreen() {
       <Text style={styles.transactionDescription}>{item.description}</Text>
       <View style={styles.categoriesContainer}>
         {item.categories.map((cat, index) => (
-          <Text key={index} style={styles.categoryTag}>{cat.name}</Text>
+          <Text key={index} style={[styles.categoryTag,{ backgroundColor: cat.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A')}]}>{cat.name}</Text>
         ))}
       </View>
       <View style={styles.transactionFooter}>
@@ -73,7 +77,8 @@ export default function AccountsScreen() {
         )}
       </View>
     </View>
-  );
+  )
+};
 
   return (
     <SafeAreaView style={styles.container}>
