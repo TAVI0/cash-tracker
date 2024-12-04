@@ -5,6 +5,7 @@ import ConfirmationModal from './ConfirmationModal';
 import { useTheme } from '../ThemeContext';
 import { Category } from '../types';
 import { useCategoryContext } from './CategoryContext';
+import { FlatList, GestureHandlerRootView, Switch } from 'react-native-gesture-handler';
 
 interface CategoryModalProps {
   isVisible: boolean;
@@ -16,15 +17,27 @@ export default function CategoryModal({ isVisible, onClose, category }: Category
   const { theme } = useTheme();
   const [categoryName, setCategoryName] = useState(category.name);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isPrimaryCategory, setIsPrimaryCategory] = useState(category.primary);
+  const [selectedColor, setSelectedColor] = useState(category.color);
 
-  const { deleteCategory } = useCategoryContext();
+
+  const { deleteCategory, colorOptions, updateCategory } = useCategoryContext();
 
   useEffect(() => {
     setCategoryName(category.name);
+    setIsPrimaryCategory(category.primary);
+    if(category.primary){
+      setSelectedColor(category.color);
+    }else{
+      setSelectedColor("");
+    }
   }, [category.name]);
 
   const handleSave = () => {
-    //ToDo actualizar categoria
+    category.color= selectedColor;
+    category.name = categoryName;
+    category.primary = isPrimaryCategory;
+    updateCategory(category)
     onClose();
   };
 
@@ -39,6 +52,16 @@ export default function CategoryModal({ isVisible, onClose, category }: Category
   };
 
   const styles = getStyles(theme);
+  const renderColorButton = ({ item }: { item: string }) => (
+    <TouchableOpacity
+      style={[
+        styles.colorButton,
+        { backgroundColor: item },
+        selectedColor === item && styles.selectedColorButton
+      ]}
+      onPress={() => setSelectedColor(item)}
+    />
+  );
 
   return (
     <>
@@ -48,6 +71,7 @@ export default function CategoryModal({ isVisible, onClose, category }: Category
         visible={isVisible}
         onRequestClose={onClose}
       >
+        <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <TouchableOpacity style={styles.closeButton} onPress={onClose} accessibilityLabel="Cerrar modal">
@@ -61,18 +85,42 @@ export default function CategoryModal({ isVisible, onClose, category }: Category
               <TextInput
                 style={styles.input}
                 value={categoryName}
-                //onChangeText={setCategoryName}
+                onChangeText={setCategoryName}
                 autoFocus
                 selectTextOnFocus
                 accessibilityLabel={`Editar nombre de la categoría: ${categoryName}`}
                 accessibilityHint="Edita el nombre de la categoría"
               />
             </View>
+
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>Categoría Primaria</Text>
+              <Switch
+                value={isPrimaryCategory}
+                onValueChange={setIsPrimaryCategory}
+                trackColor={{ false: "#767577", true: "#81b0ff" }}
+                thumbColor={isPrimaryCategory ? "#f5dd4b" : "#f4f3f4"}
+              />
+            </View>
+            {isPrimaryCategory && (
+              <View style={styles.colorPickerContainer}>
+                <Text style={styles.colorPickerLabel}>Seleccionar Color:</Text>
+                <FlatList
+                  data={colorOptions}
+                  renderItem={renderColorButton}
+                  keyExtractor={(item) => item}
+                  numColumns={4}
+                  contentContainerStyle={styles.colorButtonsContainer}
+                />
+              </View>
+            )}
+
             <TouchableOpacity style={styles.saveButton} onPress={handleSave} accessibilityLabel="Guardar cambios">
               <Text style={styles.saveButtonText}>Guardar</Text>
             </TouchableOpacity>
           </View>
         </View>
+      </GestureHandlerRootView>
       </Modal>
       <ConfirmationModal
         isVisible={showConfirmation}
@@ -95,16 +143,7 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     width: '80%',
     backgroundColor: theme === 'light' ? 'white' : '#2A2A2A',
     borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
+    padding: 20,
   },
   closeButton: {
     position: 'absolute',
@@ -152,5 +191,36 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },  
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  switchLabel: {
+    fontSize: 16,
+    color: theme === 'light' ? '#000000' : '#FFFFFF',
+  },
+  colorPickerContainer: {
+    marginBottom: 20,
+  },
+  colorPickerLabel: {
+    fontSize: 16,
+    marginBottom: 10,
+    color: theme === 'light' ? '#000000' : '#FFFFFF',
+  },
+  colorButtonsContainer: {
+    justifyContent: 'space-between',
+  },
+  colorButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    margin: 5,
+  },
+  selectedColorButton: {
+    borderWidth: 2,
+    borderColor: theme === 'light' ? '#000000' : '#FFFFFF',
   },
 });

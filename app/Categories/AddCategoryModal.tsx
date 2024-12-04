@@ -12,11 +12,6 @@ interface AddCategoryModalProps {
   onClose: () => void;
 }
 
-const colorOptions = [
-  '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
-  '#98D8C8', '#F06292', '#AED581', '#FFD54F'
-];
-
 export default function AddCategoryModal({ isVisible, onClose }: AddCategoryModalProps) {
   const { theme } = useTheme();
   const styles = getStyles(theme);
@@ -24,7 +19,7 @@ export default function AddCategoryModal({ isVisible, onClose }: AddCategoryModa
   const [isPrimaryCategory, setIsPrimaryCategory] = useState(false);
   const [selectedColor, setSelectedColor] = useState('');
 
-  const { addCategory } = useCategoryContext();
+  const { addCategory, colorOptions } = useCategoryContext();
 
   const handleAddCategory = () => {
     if (newCategoryName.trim()) {

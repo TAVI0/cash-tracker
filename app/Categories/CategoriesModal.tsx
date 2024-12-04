@@ -21,6 +21,7 @@ export default function CategoriesModal({
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [tempSelectedCategories, setTempSelectedCategories] = useState<Category[]>([]);
+  const [hasPrimary, setHasPrimary] = useState(false);
 
   const styles = getStyles(theme);
 
@@ -33,9 +34,25 @@ export default function CategoriesModal({
   };
 
   const handleToggleCategory = (category: Category) => {
-    setTempSelectedCategories(
-      prev => prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
-    );
+    if(tempSelectedCategories.includes(category)){
+      setTempSelectedCategories(tempSelectedCategories.filter(c => c !== category));
+      if(category.primary){
+        setHasPrimary(false);
+      }
+    }else{
+      if((category.primary && !hasPrimary) || (!category.primary)){
+        setTempSelectedCategories([...tempSelectedCategories, category]);
+        if(category.primary){
+          setHasPrimary(true);
+        }
+      }
+    }
+
+/*      setTempSelectedCategories(
+        prev => prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
+      );
+      */ 
+
   };
 
   const handleConfirmCategories = () => {

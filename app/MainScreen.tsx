@@ -231,7 +231,6 @@ export default function MainScreen() {
       <CategoriesModal
         isVisible={showCategoriesModal}
         onClose={() => setShowCategoriesModal(false)}
-        //onConfirmCategories={onConfirmCategories}
       />
     </SafeAreaView>
   );
