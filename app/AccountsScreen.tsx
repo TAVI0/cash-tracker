@@ -3,55 +3,31 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { useTheme } from './ThemeContext';
 import { Transaction } from './types';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { X } from 'lucide-react-native';
+import { useTransactionContext } from './Transaction/TransactionContext';
 
 export default function AccountsScreen() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const { theme } = useTheme();
   const styles = getStyles(theme);
+
+  const {transactions, deleteTransaction,loadTransactions} = useTransactionContext();
 
   useEffect(() => {
     loadTransactions();
   }, []);
-
-  const loadTransactions = async () => {
-    try {
-      const storedTransactions = await AsyncStorage.getItem('transactions');
-      if (storedTransactions) {
-        const parsedTransactions = JSON.parse(storedTransactions);
-        console.log('Loaded transactions:', parsedTransactions);
-        setTransactions(parsedTransactions);
-      }
-    } catch (e) {
-      console.error('Error al cargar transacciones:', e);
-    }
-  };
-
-  const deleteTransaction = async(id:string)=>{
-
-    // Filtrar las transacciones para eliminar la que coincide con el ID
-    const updatedTransactions = transactions.filter(transaction => transaction.id !== id);
-    
-    // Actualizar el estado con las transacciones filtradas
-    setTransactions(updatedTransactions);
-
-    // Guardar las transacciones actualizadas en AsyncStorage
-    await AsyncStorage.setItem('transactions', JSON.stringify(updatedTransactions));
-
-    // Mostrar las transacciones actualizadas en el log
-    console.log('Transacciones guardadas:', updatedTransactions);
-  };
 
   const renderItem = ({ item }: { item: Transaction }) => {
     const primaryCategory = item.categories.find((cat) => cat.primary);
     const categoryColor = primaryCategory?.color || (theme === 'light' ? '#FFF' : '#2A2A2A');
     
     return(
-    <View style={[styles.transactionItem]}>
+    <TouchableOpacity 
+      style={[styles.transactionItem]}
+      //onLongPress={() => openTransactionModal(item)}
+      >
       <TouchableOpacity
             style={styles.closeButton}
-            onPress={() => deleteTransaction(item.id)}
+            onPress={() => deleteTransaction(item)}
           >
             <X color={theme === 'light' ? '#000' : '#FFF'} size={12} />
       </TouchableOpacity>
@@ -76,7 +52,7 @@ export default function AccountsScreen() {
           <Text style={styles.transactionCard}>Tarjeta: {item.cardName}</Text>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   )
 };
 

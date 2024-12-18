@@ -19,9 +19,9 @@ type CategoryContextType = {
   
 const defaultContextValue: CategoryContextType = {
     categories: [],
-    setCategories: () => { },
+    setCategories: () => {},
     selectedCategories:[],
-    setSelectedCategories: () => { },
+    setSelectedCategories: () => {},
     addCategory: () => {},
     updateCategory: () => {},
     deleteCategory:  () => {},

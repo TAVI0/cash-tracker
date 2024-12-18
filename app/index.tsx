@@ -6,6 +6,7 @@ import AccountsScreen from "./AccountsScreen";
 import MainScreen from "./MainScreen";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CategoryProvider } from "./Categories/CategoryContext";
+import { TransactionProvider } from "./Transaction/TransactionContext";
 
 declare global {
   var AsyncStorage: typeof import('@react-native-async-storage/async-storage').default;
@@ -22,7 +23,7 @@ function Index() {
 
   return (
     <CategoryProvider>
-      
+    <TransactionProvider>
     <View style={styles.mainContainer}>
       {currentScreen === "main" ? (
         <MainScreen />
@@ -64,6 +65,7 @@ function Index() {
         </TouchableOpacity>
       </View>
     </View>
+    </TransactionProvider>
   </CategoryProvider>
   );
 }

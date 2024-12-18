@@ -33,10 +33,14 @@ export default function CategoryModal({ isVisible, onClose, category }: Category
     }
   }, [category.name]);
 
-  const handleSave = () => {
-    category.color= selectedColor;
+  const handleSave = () => { 
     category.name = categoryName;
     category.primary = isPrimaryCategory;
+    if(isPrimaryCategory){
+      category.color= selectedColor;  
+    }else{
+      category.color= "";
+    }
     updateCategory(category)
     onClose();
   };
