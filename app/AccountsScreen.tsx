@@ -5,12 +5,18 @@ import { Transaction } from './types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { X } from 'lucide-react-native';
 import { useTransactionContext } from './Transaction/TransactionContext';
+import EditTransactionModal from './Transaction/editTransactionModal';
 
 export default function AccountsScreen() {
   const { theme } = useTheme();
   const styles = getStyles(theme);
-
+  const [showTransactionModal, setShowTransactionModal] = useState(false)
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const {transactions, deleteTransaction,loadTransactions} = useTransactionContext();
+  const openTransactionModal=(transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setShowTransactionModal(true);
+  }
 
   useEffect(() => {
     loadTransactions();
@@ -23,7 +29,7 @@ export default function AccountsScreen() {
     return(
     <TouchableOpacity 
       style={[styles.transactionItem]}
-      //onLongPress={() => openTransactionModal(item)}
+      onLongPress={() => openTransactionModal(item)}
       >
       <TouchableOpacity
             style={styles.closeButton}
@@ -69,6 +75,13 @@ export default function AccountsScreen() {
       ) : (
         <Text style={styles.noTransactions}>No hay transacciones registradas.</Text>
       )}
+    {selectedTransaction && (
+      <EditTransactionModal
+        isVisible={showTransactionModal}
+        onClose={() => setShowTransactionModal(false)}
+        transaction={selectedTransaction}
+      />
+    )}
     </SafeAreaView>
   );
 }

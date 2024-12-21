@@ -54,13 +54,6 @@ export default function MainScreen() {
       };
 
       try {
-/*        const existingTransactionsJson = await AsyncStorage.getItem('transactions');
-        const existingTransactions = existingTransactionsJson ? JSON.parse(existingTransactionsJson) : [];
-        
-        const updatedTransactions = [newTransaction, ...existingTransactions];
-        
-        await AsyncStorage.setItem('transactions', JSON.stringify(updatedTransactions));
-  */   
         addTransaction(newTransaction);
         
         console.log('Transacción guardada:', newTransaction);
