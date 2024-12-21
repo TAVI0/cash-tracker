@@ -8,6 +8,7 @@ import CategoriesModal from './Categories/CategoriesModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCategoryContext } from './Categories/CategoryContext';
+import { useTransactionContext } from './Transaction/TransactionContext';
 
 export default function MainScreen() {
   const { theme } = useTheme();
@@ -25,7 +26,7 @@ export default function MainScreen() {
   const styles = getStyles(theme);
 
   const { categories, selectedCategories, setSelectedCategories, loadCategories } = useCategoryContext();
-
+  const { addTransaction } = useTransactionContext();
 
   useEffect(() => {
     loadCategories();
@@ -53,27 +54,34 @@ export default function MainScreen() {
       };
 
       try {
-        const existingTransactionsJson = await AsyncStorage.getItem('transactions');
+/*        const existingTransactionsJson = await AsyncStorage.getItem('transactions');
         const existingTransactions = existingTransactionsJson ? JSON.parse(existingTransactionsJson) : [];
         
         const updatedTransactions = [newTransaction, ...existingTransactions];
         
         await AsyncStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+  */   
+        addTransaction(newTransaction);
         
         console.log('Transacción guardada:', newTransaction);
-        console.log('Todas las transacciones:', updatedTransactions);
+        console.log('Todas las transacciones:', categories);
 
-        setAmount('');
-        setDescription('');
-        setName('');
-        setInstallments('');
-        setSelectedCard('');
-        setSelectedCategories([]);
+        clearFields()
+
       } catch (e) {
         console.error('Error al guardar la transacción:', e);
       }
     }
   };
+
+  const clearFields = ()=>{
+    setAmount('');
+    setDescription('');
+    setName('');
+    setInstallments('');
+    setSelectedCard('');
+    setSelectedCategories([]);
+  }
 
   return (
     <SafeAreaView style={styles.container}>

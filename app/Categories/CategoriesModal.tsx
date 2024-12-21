@@ -46,12 +46,7 @@ export default function CategoriesModal({
           setHasPrimary(true);
         }
       }
-    }
-
-/*      setTempSelectedCategories(
-        prev => prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
-      );
-      */ 
+    } 
 
   };
 
