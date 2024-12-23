@@ -143,7 +143,6 @@ export default function MainScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                console.log(categories);
                 setShowCategoriesModal(true);
               }}            >
               <Plus color={theme === 'light' ? '#007AFF' : '#4DA6FF'} size={24} />

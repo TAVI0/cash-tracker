@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
 import { X, Plus } from 'lucide-react-native';
 import { useTheme } from '../ThemeContext';
@@ -25,8 +25,7 @@ export default function CategoriesModal({
 
   const styles = getStyles(theme);
 
-  const { categories,setSelectedCategories } = useCategoryContext();
-
+  const { categories, setSelectedCategories, selectedCategories } = useCategoryContext();
 
   const openCategoryModal = (category: Category) => {
     setSelectedCategory(category);
@@ -34,20 +33,19 @@ export default function CategoriesModal({
   };
 
   const handleToggleCategory = (category: Category) => {
-    if(tempSelectedCategories.includes(category)){
+    if (tempSelectedCategories.includes(category)) {
       setTempSelectedCategories(tempSelectedCategories.filter(c => c !== category));
-      if(category.primary){
+      if (category.primary) {
         setHasPrimary(false);
       }
-    }else{
-      if((category.primary && !hasPrimary) || (!category.primary)){
+    } else {
+      if ((category.primary && !hasPrimary) || (!category.primary)) {
         setTempSelectedCategories([...tempSelectedCategories, category]);
-        if(category.primary){
+        if (category.primary) {
           setHasPrimary(true);
         }
       }
-    } 
-
+    }
   };
 
   const handleConfirmCategories = () => {
@@ -55,38 +53,37 @@ export default function CategoriesModal({
       if (a.primary && !b.primary) return -1;
       if (!a.primary && b.primary) return 1;
       return 0;
-    })
-    setSelectedCategories(sortedCategories)
+    });
+    setSelectedCategories(sortedCategories);
     onClose();
   };
 
   const renderCategoryItem = ({ item }: { item: Category }) => {
-    
-    
-    return(
-    <TouchableOpacity
-      style={[
-        styles.categoryItem,
-        tempSelectedCategories.includes(item) && styles.selectedCategoryItem,
-        {
-          backgroundColor: item.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A'),
-          borderColor: tempSelectedCategories.includes(item) ? '#FFFFFF' : 'transparent',
-          borderWidth: tempSelectedCategories.includes(item) ? 2 : 2, // Borde visible solo si está seleccionado
-        },
-      ]}
-      onPress={() => handleToggleCategory(item)}
-      onLongPress={() => openCategoryModal(item)}
-    >
-      <Text
+    return (
+      <TouchableOpacity
         style={[
-          styles.categoryItemText,
-          tempSelectedCategories.includes(item) && styles.selectedCategoryItemText,
+          styles.categoryItem,
+          tempSelectedCategories.includes(item) && styles.selectedCategoryItem,
+          {
+            backgroundColor: item.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A'),
+            borderColor: tempSelectedCategories.includes(item) ? '#FFFFFF' : 'transparent',
+            borderWidth: 2,
+          },
         ]}
+        onPress={() => handleToggleCategory(item)}
+        onLongPress={() => openCategoryModal(item)}
       >
-        {item.name}
-      </Text>
-    </TouchableOpacity>
-  )};
+        <Text
+          style={[
+            styles.categoryItemText,
+            tempSelectedCategories.includes(item) && styles.selectedCategoryItemText,
+          ]}
+        >
+          {item.name}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <>

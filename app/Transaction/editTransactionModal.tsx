@@ -18,6 +18,7 @@ export default function EditTransactionModal({ isVisible, onClose, transaction }
     const { theme } = useTheme();
     const styles = getStyles(theme);
     const { updateTransaction } = useTransactionContext();
+    const { selectedCategories,setSelectedCategories } = useCategoryContext();
     const { categories } = useCategoryContext();
 
     const [editedTransaction, setEditedTransaction] = useState<Transaction>({ ...transaction });
@@ -26,9 +27,11 @@ export default function EditTransactionModal({ isVisible, onClose, transaction }
 
     useEffect(() => {
         setEditedTransaction({ ...transaction });
+        setSelectedCategories(transaction.categories)
     }, [transaction]);
 
     const handleSave = () => {
+        setSelectedCategories([])
         updateTransaction(editedTransaction);
         onClose();
     };
@@ -49,7 +52,12 @@ export default function EditTransactionModal({ isVisible, onClose, transaction }
         >
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                    <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                    <TouchableOpacity style={styles.closeButton} 
+                        onPress={() =>{
+                        onClose();
+                        setSelectedCategories([])}
+                        }
+                    >
                         <X color={theme === 'light' ? '#000' : '#FFF'} size={24} />
                     </TouchableOpacity>
                     <Text style={styles.modalTitle}>Editar Transacción</Text>
@@ -87,9 +95,22 @@ export default function EditTransactionModal({ isVisible, onClose, transaction }
                                 onChange={onDateChange}
                             />
                         )}
-                        <TouchableOpacity style={styles.categoryButton} onPress={() => setShowCategoriesModal(true)}>
+                        <TouchableOpacity style={styles.categoryButton} 
+                            onPress={() => {
+                                setShowCategoriesModal(true);
+                            }}>
                             <Text style={styles.categoryButtonText}>Editar Categorías</Text>
                         </TouchableOpacity>
+                        {selectedCategories.map((cat, index) => (
+                            <TouchableOpacity
+                            key={index}
+                            style={[styles.categoryButton, styles.selectedButton,{backgroundColor: cat.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A'),}]}
+                            >
+                            <Text style={styles.selectedCategoryButtonText}>
+                                {cat.name}
+                            </Text>
+                            </TouchableOpacity>
+                        ))}
                         {editedTransaction.cardName && (
                             <TextInput
                                 style={styles.input}
@@ -118,8 +139,6 @@ export default function EditTransactionModal({ isVisible, onClose, transaction }
             <CategoriesModal
                 isVisible={showCategoriesModal}
                 onClose={() => setShowCategoriesModal(false)}
-              //  onCategoriesSelected={(categories) => setEditedTransaction(prev => ({ ...prev, categories }))}
-              //  selectedCategories={editedTransaction.categories}
             />
         </Modal>
     );
@@ -172,6 +191,9 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
         borderRadius: 5,
         marginBottom: 15,
     },
+    selectedButton: {
+        backgroundColor: theme === 'light' ? '#F0F0F0' : '#3A3A3A',
+    },
     categoryButtonText: {
         color: theme === 'light' ? '#000' : '#FFF',
         textAlign: 'center',
@@ -187,5 +209,8 @@ const getStyles = (theme: 'light' | 'dark') => StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold',
     },
+    selectedCategoryButtonText: {
+        color: '#FFFFFF',
+      },
 });
 
