@@ -20,12 +20,18 @@ export default function CategoriesModal({
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
-  const [tempSelectedCategories, setTempSelectedCategories] = useState<Category[]>([]);
+  //const [tempSelectedCategories, setTempSelectedCategories] = useState<Category[]>([]);
   const [hasPrimary, setHasPrimary] = useState(false);
 
   const styles = getStyles(theme);
 
-  const { categories, setSelectedCategories, selectedCategories } = useCategoryContext();
+  const { categories, setSelectedCategories, selectedCategories, tempSelectedCategories, setTempSelectedCategories } = useCategoryContext();
+
+  useEffect(() => {
+    setTempSelectedCategories(selectedCategories);
+    console.log("Categories Modal");
+    console.log(tempSelectedCategories);
+  }, [selectedCategories]);
 
   const openCategoryModal = (category: Category) => {
     setSelectedCategory(category);

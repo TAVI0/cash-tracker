@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { X } from 'lucide-react-native';
 import { useTransactionContext } from './Transaction/TransactionContext';
 import EditTransactionModal from './Transaction/editTransactionModal';
+import { useCategoryContext } from './Categories/CategoryContext';
 
 export default function AccountsScreen() {
   const { theme } = useTheme();
@@ -13,8 +14,14 @@ export default function AccountsScreen() {
   const [showTransactionModal, setShowTransactionModal] = useState(false)
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const {transactions, deleteTransaction,loadTransactions} = useTransactionContext();
+  const { categories, setSelectedCategories, selectedCategories, tempSelectedCategories, setTempSelectedCategories } = useCategoryContext();
+  
   const openTransactionModal=(transaction: Transaction) => {
     setSelectedTransaction(transaction);
+    setTempSelectedCategories(transaction.categories)
+    console.log("AccountScreen");
+    console.log(transaction);
+    console.log(tempSelectedCategories);
     setShowTransactionModal(true);
   }
 
@@ -78,7 +85,10 @@ export default function AccountsScreen() {
     {selectedTransaction && (
       <EditTransactionModal
         isVisible={showTransactionModal}
-        onClose={() => setShowTransactionModal(false)}
+        onClose={() => {
+          setShowTransactionModal(false)
+          setSelectedCategories([])
+        }}
         transaction={selectedTransaction}
       />
     )}

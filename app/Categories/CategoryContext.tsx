@@ -7,6 +7,9 @@ type CategoryContextType = {
     setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
     selectedCategories: Category[];
     setSelectedCategories: React.Dispatch<React.SetStateAction<Category[]>>;
+
+    tempSelectedCategories: Category[];
+    setTempSelectedCategories: React.Dispatch<React.SetStateAction<Category[]>>;
     addCategory: (category: Category) => void;
     updateCategory: (category: Category) => void;
     deleteCategory: (category: Category) => void;
@@ -22,6 +25,8 @@ const defaultContextValue: CategoryContextType = {
     setCategories: () => {},
     selectedCategories:[],
     setSelectedCategories: () => {},
+    tempSelectedCategories: [],
+    setTempSelectedCategories: () => {},
     addCategory: () => {},
     updateCategory: () => {},
     deleteCategory:  () => {},
@@ -39,6 +44,8 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const [categories, setCategories] = useState<Category[]>([]);
     const [onEditCategory, setOnEditCategory] = useState<Category | null>(null);
     const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+    const [tempSelectedCategories, setTempSelectedCategories] = useState<Category[]>([]);
+    
     const colorOptions = [
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
       '#98D8C8', '#F06292', '#AED581', '#FFD54F'
@@ -97,7 +104,9 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updateCategory,
         deleteCategory, 
         selectedCategories, 
-        setSelectedCategories, 
+        setSelectedCategories,
+        tempSelectedCategories,
+        setTempSelectedCategories,
         loadCategories,  
         onEditCategory,
         setOnEditCategory,

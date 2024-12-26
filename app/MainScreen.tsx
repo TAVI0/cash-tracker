@@ -55,10 +55,6 @@ export default function MainScreen() {
 
       try {
         addTransaction(newTransaction);
-        
-        console.log('Transacción guardada:', newTransaction);
-        console.log('Todas las transacciones:', categories);
-
         clearFields()
 
       } catch (e) {

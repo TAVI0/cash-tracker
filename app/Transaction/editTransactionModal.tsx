@@ -18,7 +18,7 @@ export default function EditTransactionModal({ isVisible, onClose, transaction }
     const { theme } = useTheme();
     const styles = getStyles(theme);
     const { updateTransaction } = useTransactionContext();
-    const { selectedCategories,setSelectedCategories } = useCategoryContext();
+    const { selectedCategories,setSelectedCategories, tempSelectedCategories, setTempSelectedCategories } = useCategoryContext();
     const { categories } = useCategoryContext();
 
     const [editedTransaction, setEditedTransaction] = useState<Transaction>({ ...transaction });
@@ -28,10 +28,15 @@ export default function EditTransactionModal({ isVisible, onClose, transaction }
     useEffect(() => {
         setEditedTransaction({ ...transaction });
         setSelectedCategories(transaction.categories)
+        setTempSelectedCategories(transaction.categories)
+        console.log("Edit Transaction Modal");
+        console.log(tempSelectedCategories);
+
     }, [transaction]);
 
     const handleSave = () => {
         setSelectedCategories([])
+        setTempSelectedCategories([])
         updateTransaction(editedTransaction);
         onClose();
     };

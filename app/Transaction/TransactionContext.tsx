@@ -36,7 +36,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const updatedTransactions = transactions.filter(transac => transac !== tranToDelete);
       setTransactions(updatedTransactions);
       await AsyncStorage.setItem('transactions', JSON.stringify(updatedTransactions));
-      console.log('Transacciones guardadas:', updatedTransactions);
+      //console.log('Transacciones guardadas:', updatedTransactions);
     };
 
   const loadTransactions = async () => {
@@ -44,7 +44,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const storedTransactions = await AsyncStorage.getItem('transactions');
         if (storedTransactions) {
           const parsedTransactions = JSON.parse(storedTransactions);
-          console.log('Loaded transactions:', parsedTransactions);
+        //  console.log('Loaded transactions:', parsedTransactions);
           setTransactions(parsedTransactions);
         }
       } catch (e) {
