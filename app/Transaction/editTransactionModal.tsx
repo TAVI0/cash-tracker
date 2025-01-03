@@ -100,13 +100,15 @@ export default function EditTransactionModal({ isVisible, onClose, transaction }
                                 onChange={onDateChange}
                             />
                         )}
+                        {/*
                         <TouchableOpacity style={styles.categoryButton} 
                             onPress={() => {
                                 setShowCategoriesModal(true);
                             }}>
                             <Text style={styles.categoryButtonText}>Editar Categorías</Text>
-                        </TouchableOpacity>
-                        {selectedCategories.map((cat, index) => (
+                            </TouchableOpacity>
+                        */}
+                            {selectedCategories.map((cat, index) => (
                             <TouchableOpacity
                             key={index}
                             style={[styles.categoryButton, styles.selectedButton,{backgroundColor: cat.color || (theme === 'light' ? '#F0F0F0' : '#3A3A3A'),}]}
@@ -141,10 +143,15 @@ export default function EditTransactionModal({ isVisible, onClose, transaction }
                     </ScrollView>
                 </View>
             </View>
-            <CategoriesModal
+
+        {
+            /*
+          <CategoriesModal
                 isVisible={showCategoriesModal}
                 onClose={() => setShowCategoriesModal(false)}
             />
+            */
+        }
         </Modal>
     );
 }
