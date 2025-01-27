@@ -20,5 +20,4 @@ export interface Category{
 export interface Accounts{
     id: string;
     name: string;
-    
 }

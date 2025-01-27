@@ -45,6 +45,7 @@ export default function AccountsScreen() {
             <X color={theme === 'light' ? '#000' : '#FFF'} size={12} />
       </TouchableOpacity>
       <View style={styles.transactionHeader}>
+      <Text style={styles.transactionDate}>{item.date}</Text>
         <Text style={styles.transactionName}>{item.name}</Text>
         <Text style={styles.transactionAmount}>
           {item.type === 'ingreso' ? '+' : '-'}${item.amount.toFixed(2)}
@@ -57,7 +58,6 @@ export default function AccountsScreen() {
         ))}
       </View>
       <View style={styles.transactionFooter}>
-        <Text style={styles.transactionDate}>{item.date}</Text>
         {item.installments && (
           <Text style={styles.transactionInstallments}>Cuotas: {item.installments}</Text>
         )}

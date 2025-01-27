@@ -63,6 +63,15 @@ function Index() {
           <Scale color={theme === "light" ? "#000" : "#FFF"} size={24} />
           <Text style={styles.navButtonText}>Registros</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={navigateToAccounts}
+          accessibilityLabel="Ver Estadisticas"
+          >
+          <Scale color={theme === "light" ? "#000" : "#FFF"} size={24} />
+          <Text style={styles.navButtonText}>Estadisticas</Text>
+        </TouchableOpacity>
       </View>
     </View>
     </TransactionProvider>

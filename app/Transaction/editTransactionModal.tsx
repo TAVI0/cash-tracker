@@ -1,72 +1,81 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
-import { X } from 'lucide-react-native';
-import { useTheme } from '../ThemeContext';
-import { Transaction } from "../types";
-import { useTransactionContext } from './TransactionContext';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import CategoriesModal from '../Categories/CategoriesModal';
-import { useCategoryContext } from '../Categories/CategoryContext';
+import React, { useState, useEffect } from "react"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView } from "react-native"
+import { X } from "lucide-react-native"
+import { useTheme } from "../ThemeContext"
+import type { Transaction } from "../types"
+import { useTransactionContext } from "./TransactionContext"
+import DateTimePicker from "@react-native-community/datetimepicker"
+import CategoriesModal from "../Categories/CategoriesModal"
+import { useCategoryContext } from "../Categories/CategoryContext"
 
 interface TransactionModalProps {
-    isVisible: boolean;
-    onClose: () => void;
-    transaction: Transaction;
+  isVisible: boolean
+  onClose: () => void
+  transaction: Transaction
 }
 
 export default function EditTransactionModal({ isVisible, onClose, transaction }: TransactionModalProps) {
-    const { theme } = useTheme();
-    const styles = getStyles(theme);
-    const { updateTransaction } = useTransactionContext();
-    const { selectedCategories,setSelectedCategories, tempSelectedCategories, setTempSelectedCategories } = useCategoryContext();
-    const { categories } = useCategoryContext();
+  const { theme } = useTheme()
+  const styles = getStyles(theme)
+  const { updateTransaction } = useTransactionContext()
+  const { selectedCategories, setSelectedCategories, tempSelectedCategories, setTempSelectedCategories } =
+    useCategoryContext()
+  const { categories } = useCategoryContext()
 
-    const [editedTransaction, setEditedTransaction] = useState<Transaction>({ ...transaction });
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [showCategoriesModal, setShowCategoriesModal] = useState(false);
+  const [editedTransaction, setEditedTransaction] = useState<Transaction>({ ...transaction })
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [showCategoriesModal, setShowCategoriesModal] = useState(false)
 
-    useEffect(() => {
-        setEditedTransaction({ ...transaction });
-        setSelectedCategories(transaction.categories)
-        setTempSelectedCategories(transaction.categories)
-        console.log("Edit Transaction Modal");
-        console.log(tempSelectedCategories);
+  useEffect(() => {
+    setEditedTransaction({ ...transaction })
+    setSelectedCategories(transaction.categories)
+    setTempSelectedCategories(transaction.categories)
+    console.log("Edit Transaction Modal")
+    console.log(tempSelectedCategories)
+  }, [transaction, setSelectedCategories, setTempSelectedCategories]) // Added setSelectedCategories and setTempSelectedCategories to dependencies
 
-    }, [transaction]);
+  const handleSave = () => {
+    setSelectedCategories([])
+    setTempSelectedCategories([])
+    updateTransaction(editedTransaction)
+    onClose()
+  }
 
-    const handleSave = () => {
-        setSelectedCategories([])
-        setTempSelectedCategories([])
-        updateTransaction(editedTransaction);
-        onClose();
-    };
+  const onDateChange = (_event: any, selectedDate?: Date) => {
+    setShowDatePicker(false)
+    if (selectedDate) {
+      setEditedTransaction((prev) => ({ ...prev, date: selectedDate.toLocaleDateString() }))
+    }
+  }
 
-    const onDateChange = (_event: any, selectedDate?: Date) => {
-        setShowDatePicker(false);
-        if (selectedDate) {
-            setEditedTransaction(prev => ({ ...prev, date: selectedDate.toLocaleDateString() }));
-        }
-    };
+  // Nuevo código para parsear correctamente la fecha
+  const parseDateString = (dateString: string): Date => {
+    const [day, month, year] = dateString.split("/").map(Number)
+    return new Date(year, month - 1, day)
+  }
 
-    return (
-        <Modal
-            animationType="slide"
-            transparent={true}
-            visible={isVisible}
-            onRequestClose={onClose}
-        >
-            <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                    <TouchableOpacity style={styles.closeButton} 
-                        onPress={() =>{
-                        onClose();
-                        setSelectedCategories([])}
-                        }
-                    >
-                        <X color={theme === 'light' ? '#000' : '#FFF'} size={24} />
-                    </TouchableOpacity>
-                    <Text style={styles.modalTitle}>Editar Transacción</Text>
-                    <ScrollView>
+  useEffect(() => {
+    if (transaction.date) {
+      const parsedDate = parseDateString(transaction.date)
+      setEditedTransaction((prev) => ({ ...prev, date: parsedDate.toLocaleDateString() }))
+    }
+  }, [transaction])
+
+  return (
+    <Modal animationType="slide" transparent={true} visible={isVisible} onRequestClose={onClose}>
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => {
+              onClose()
+              setSelectedCategories([])
+            }}
+          >
+            <X color={theme === "light" ? "#000" : "#FFF"} size={24} />
+          </TouchableOpacity>
+          <Text style={styles.modalTitle}>Editar Transacción</Text>
+          <ScrollView>
                         <TextInput
                             style={styles.input}
                             value={editedTransaction.name}
@@ -89,17 +98,17 @@ export default function EditTransactionModal({ isVisible, onClose, transaction }
                             placeholder="Descripción"
                             placeholderTextColor={theme === 'light' ? '#888' : '#AAA'}
                         />
-                        <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+                       <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
                             <Text style={styles.dateButtonText}>Fecha: {editedTransaction.date}</Text>
-                        </TouchableOpacity>
-                        {showDatePicker && (
+                            </TouchableOpacity>
+                            {showDatePicker && (
                             <DateTimePicker
-                                value={new Date(editedTransaction.date)}
+                                value={parseDateString(editedTransaction.date)}
                                 mode="date"
                                 display="default"
                                 onChange={onDateChange}
                             />
-                        )}
+                            )}
                         {/*
                         <TouchableOpacity style={styles.categoryButton} 
                             onPress={() => {
