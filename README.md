@@ -1,50 +1,94 @@
-# Welcome to your Expo app 👋
+# Cash Tracker
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+![Expo](https://img.shields.io/badge/Expo-SDK_51-000020?logo=expo\&logoColor=white) ![React Native](https://img.shields.io/badge/React%20Native-TypeScript-blue?logo=react) ![SQLite](https://img.shields.io/badge/SQLite-offline-important) ![CI](https://img.shields.io/github/actions/workflow/status/TAVI0/cash-tracker/ci.yml?label=CI)
 
-## Get started
+> **Estado**: *MVP en desarrollo*. La API embebida y la sincronización en la nube aún están en fase experimental.
 
-1. Install dependencies
+Aplicación **offline‑first** para registrar gastos e ingresos de forma rápida en tu dispositivo móvil. Construida con **Expo + React Native (TypeScript)** y **SQLite (WatermelonDB)** para almacenamiento local, permite seguir tu presupuesto sin conexión y sincronizar los respaldos cuando haya internet.
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## ✨ Características
 
-   ```bash
-    npx expo start
-   ```
+* 📲 **Registro instantáneo** de gastos/ingresos con categoría, monto, fecha y notas.
+* 🏷️ **Categorías** personalizables (crear, editar, eliminar) con icono y color.
+* 📊 **Gráficos** mensuales de flujo de caja y distribución por categoría.
+* 🔍 **Búsqueda y filtro** por texto, rango de fechas y categoría.
+* 🌐 **Sincronización opcional** con un backend embebido (Spring Boot) que se ejecuta dentro de la app y sube backups cifrados cuando detecta conexión.
+* 🛡️ **Cifrado local** (AES) de la base de datos para proteger tu información.
+* ☁️ **Backup en la nube** a tu cuenta de Google Drive (WIP).
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 📂 Estructura del proyecto
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+cash-tracker
+├── app/                # rutas y pantallas (Expo Router)
+├── components/         # UI compartidos (Button, Card, Chart...)
+├── hooks/              # lógica reutilizable (useTransactions, useSync)
+├── constants/          # estilos, colores, tipografías
+├── assets/             # íconos y fuentes
+├── scripts/            # utilidades CLI (migraciones, seed)
+├── app.json            # metadata Expo
+├── eas.json            # config EAS build / submit
+└── package.json        # dependencias y scripts npm
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## 🛠️ Requisitos
 
-To learn more about developing your project with Expo, look at the following resources:
+| Herramienta            | Versión recomendada   |
+| ---------------------- | --------------------- |
+| Node.js                | ≥ 20.x                |
+| npm / pnpm             | ≥ 10.x                |
+| Expo CLI               | ≥ 7.x                 |
+| EAS CLI                | (para builds nativas) |
+| Android Studio / Xcode | (para emuladores)     |
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## 🚀 Puesta en marcha rápida
 
-Join our community of developers creating universal apps.
+```bash
+# 1. Clona el repo y entra al directorio
+$ git clone https://github.com/TAVI0/cash-tracker.git
+$ cd cash-tracker
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+# 2. Instala dependencias
+$ npm install   # o pnpm install
+
+# 3. Arranca en modo desarrollo
+$ npx expo start
+```
+
+En el panel de Expo selecciona:
+
+* **a** para emulador Android
+* **i** para simulador iOS
+* Escanea el QR con **Expo Go** en tu dispositivo físico
+
+### Variables de entorno
+
+Duplica `.env.example` → `.env` y define las claves necesarias:
+
+```bash
+DB_ENCRYPTION_KEY=my-super-secret
+BACKUP_URL=https://mi-servidor.com/api/backup  # opcional
+```
+
+---
+
+## 🧩 Arquitectura
+
+| Capa                 | Descripción                                                                                           |
+| -------------------- | ----------------------------------------------------------------------------------------------------- |
+| **UI**               | React Native + Expo Router, Tailwind RN                                                               |
+| **Estado**           | Zustand para store global + TanStack Query para caché/sync                                            |
+| **BBDD local**       | SQLite vía WatermelonDB; migraciones automáticas                                                      |
+| **Backend embebido** | Microservicio Spring Boot (Java 17) expuesto en 127.0.0.1:9090 cuando se inicia la app (experimental) |
+| **Sync**             | Estrategia *push‑pull* con colas; conflicto resuelto cliente‑ganador                                  |
+
+---
+
